@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AMS'SERVICES – Dépannage à Chambéry 24h/24 7j/7</title>
+  <meta name="description" content="AMS'SERVICES : votre partenaire de confiance à Chambéry pour plomberie, électricité, serrurerie, volets roulants et bricolage à domicile. Disponible 24h/24, 7j/7." />
+  <meta name="keywords" content="dépannage Chambéry, plomberie Savoie, électricité urgence, serrurerie Chambéry, volets roulants, bricolage domicile" />
+  <meta property="og:title" content="AMS'SERVICES – Dépannage Chambéry" />
+  <meta property="og:description" content="Votre partenaire de confiance pour tous vos travaux de dépannage en Savoie." />
+  <meta property="og:type" content="website" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    /* ===== RESET & BASE ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --blue:    #1A3C6E;
+      --blue-l:  #2457A0;
+      --orange:  #F97316;
+      --orange-l:#FB923C;
+      --dark:    #111827;
+      --gray:    #6B7280;
+      --gray-l:  #F3F4F6;
+      --white:   #FFFFFF;
+      --radius:  12px;
+      --shadow:  0 4px 24px rgba(0,0,0,.10);
+      --trans:   .3s ease;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', system-ui, sans-serif; color: var(--dark); background: var(--white); line-height: 1.6; }
+    img  { max-width: 100%; display: block; }
+    a    { text-decoration: none; color: inherit; }
+    ul   { list-style: none; }
+
+    /* ===== UTILITY ===== */
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+    .section-title { font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 800; color: var(--blue); margin-bottom: 12px; }
+    .section-sub   { color: var(--gray); max-width: 600px; margin: 0 auto 56px; font-size: 1.05rem; }
+    .text-center { text-align: center; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 14px 28px; border-radius: 50px; font-weight: 700;
+      font-size: .95rem; cursor: pointer; border: none; transition: var(--trans);
+    }
+    .btn-primary  { background: var(--orange); color: var(--white); }
+    .btn-primary:hover { background: var(--orange-l); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(249,115,22,.35); }
+    .btn-outline { background: transparent; border: 2px solid var(--white); color: var(--white); }
+    .btn-outline:hover { background: var(--white); color: var(--blue); }
+    .tag {
+      display: inline-block; background: rgba(249,115,22,.12); color: var(--orange);
+      font-size: .78rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+      padding: 4px 14px; border-radius: 50px; margin-bottom: 14px;
+    }
+    /* fade-in animation */
+    .reveal { opacity: 0; transform: translateY(30px); transition: opacity .6s ease, transform .6s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    /* ===== TOP BAR ===== */
+    .topbar {
+      background: var(--blue); color: var(--white); font-size: .82rem;
+      padding: 8px 0;
+    }
+    .topbar .container { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; }
+    .topbar a { color: #CBD5E1; transition: color var(--trans); }
+    .topbar a:hover { color: var(--orange); }
+    .topbar-right { display: flex; gap: 24px; }
+    .topbar-item { display: flex; align-items: center; gap: 6px; }
+
+    /* ===== NAVBAR ===== */
+    .navbar {
+      position: sticky; top: 0; z-index: 1000;
+      background: var(--white); box-shadow: 0 2px 16px rgba(0,0,0,.08);
+      padding: 0;
+    }
+    .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 70px; }
+    .logo { display: flex; align-items: center; gap: 10px; }
+    .logo-icon {
+      width: 44px; height: 44px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--blue), var(--blue-l));
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 900; font-size: 1.1rem; color: var(--white);
+    }
+    .logo-text { font-size: 1.2rem; font-weight: 800; color: var(--blue); line-height: 1.1; }
+    .logo-text span { color: var(--orange); }
+    .logo-sub { font-size: .7rem; color: var(--gray); font-weight: 500; letter-spacing: .05em; }
+    .nav-links { display: flex; align-items: center; gap: 8px; }
+    .nav-links a { padding: 8px 14px; border-radius: 8px; font-size: .9rem; font-weight: 500; color: var(--dark); transition: var(--trans); }
+    .nav-links a:hover, .nav-links a.active { color: var(--orange); background: rgba(249,115,22,.08); }
+    .nav-cta { margin-left: 8px; padding: 10px 20px; font-size: .85rem; }
+    .hamburger { display: none; background: none; border: none; cursor: pointer; padding: 6px; }
+    .hamburger span { display: block; width: 24px; height: 2px; background: var(--blue); margin: 5px 0; transition: var(--trans); border-radius: 2px; }
+
+    /* ===== HERO ===== */
+    .hero {
+      background: linear-gradient(135deg, var(--blue) 0%, #0F2344 100%);
+      color: var(--white); padding: 100px 0 80px; overflow: hidden; position: relative;
+    }
+    .hero::before {
+      content: ''; position: absolute; inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+    }
+    .hero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; position: relative; }
+    .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(249,115,22,.2); color: var(--orange-l); border: 1px solid rgba(249,115,22,.3); border-radius: 50px; padding: 6px 16px; font-size: .82rem; font-weight: 600; margin-bottom: 20px; }
+    .badge-dot { width: 8px; height: 8px; background: var(--orange); border-radius: 50%; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.3)} }
+    .hero h1 { font-size: clamp(2rem, 5vw, 3.4rem); font-weight: 800; line-height: 1.15; margin-bottom: 20px; }
+    .hero h1 em { font-style: normal; color: var(--orange); }
+    .hero p { font-size: 1.1rem; color: #94A3B8; max-width: 480px; margin-bottom: 36px; }
+    .hero-btns { display: flex; gap: 14px; flex-wrap: wrap; }
+    .hero-stats { display: flex; gap: 32px; margin-top: 48px; flex-wrap: wrap; }
+    .stat { text-align: left; }
+    .stat-n { font-size: 2rem; font-weight: 800; color: var(--orange); line-height: 1; }
+    .stat-l { font-size: .8rem; color: #94A3B8; margin-top: 4px; }
+    .hero-card {
+      background: rgba(255,255,255,.06); backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,.12); border-radius: 20px;
+      padding: 32px; display: flex; flex-direction: column; gap: 16px;
+    }
+    .hero-card-title { font-size: 1.1rem; font-weight: 700; color: var(--white); margin-bottom: 4px; }
+    .hero-phone { font-size: 1.6rem; font-weight: 800; color: var(--orange); letter-spacing: .02em; }
+    .hero-phone-sub { font-size: .8rem; color: #94A3B8; }
+    .hero-divider { height: 1px; background: rgba(255,255,255,.1); }
+    .hero-service-list { display: flex; flex-direction: column; gap: 10px; }
+    .hero-service-item { display: flex; align-items: center; gap: 10px; font-size: .9rem; color: #CBD5E1; }
+    .hero-service-item svg { flex-shrink: 0; color: var(--orange); }
+    .urgence-band {
+      background: var(--orange); color: var(--white); text-align: center;
+      padding: 14px; font-weight: 700; font-size: 1rem; letter-spacing: .02em;
+    }
+    .urgence-band a { color: var(--white); border-bottom: 2px solid rgba(255,255,255,.4); }
+
+    /* ===== SERVICES ===== */
+    .services { padding: 100px 0; background: var(--gray-l); }
+    .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
+    .service-card {
+      background: var(--white); border-radius: var(--radius);
+      padding: 32px; box-shadow: var(--shadow);
+      transition: var(--trans); border: 2px solid transparent;
+      cursor: default;
+    }
+    .service-card:hover { border-color: var(--orange); transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,.12); }
+    .service-icon {
+      width: 60px; height: 60px; border-radius: 14px;
+      background: linear-gradient(135deg, var(--blue), var(--blue-l));
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 20px; font-size: 1.6rem;
+    }
+    .service-card h3 { font-size: 1.15rem; font-weight: 700; color: var(--blue); margin-bottom: 10px; }
+    .service-card p { color: var(--gray); font-size: .92rem; line-height: 1.65; }
+    .service-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 16px; }
+    .service-tag { background: var(--gray-l); color: var(--gray); font-size: .75rem; padding: 3px 10px; border-radius: 50px; }
+
+    /* ===== ABOUT ===== */
+    .about { padding: 100px 0; }
+    .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+    .about-visual {
+      position: relative; border-radius: 20px; overflow: hidden;
+      background: linear-gradient(135deg, var(--blue) 0%, var(--blue-l) 100%);
+      min-height: 420px; display: flex; align-items: center; justify-content: center;
+    }
+    .about-visual-inner { text-align: center; color: var(--white); padding: 40px; }
+    .about-visual-icon { font-size: 5rem; margin-bottom: 16px; }
+    .about-badge-float {
+      position: absolute; bottom: -16px; right: -16px;
+      background: var(--orange); color: var(--white);
+      border-radius: 14px; padding: 20px 24px; text-align: center;
+      box-shadow: 0 8px 24px rgba(249,115,22,.4);
+    }
+    .about-badge-float .n { font-size: 2rem; font-weight: 800; }
+    .about-badge-float .l { font-size: .75rem; }
+    .about-content h2 { font-size: clamp(1.6rem, 3.5vw, 2.2rem); font-weight: 800; color: var(--blue); margin-bottom: 16px; line-height: 1.25; }
+    .about-content p { color: var(--gray); line-height: 1.75; margin-bottom: 20px; }
+    .about-values { display: flex; flex-direction: column; gap: 16px; margin-top: 32px; }
+    .about-value { display: flex; gap: 14px; align-items: flex-start; }
+    .about-value-icon { width: 40px; height: 40px; border-radius: 10px; background: rgba(249,115,22,.1); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .about-value h4 { font-size: .95rem; font-weight: 700; color: var(--blue); margin-bottom: 3px; }
+    .about-value p { font-size: .85rem; margin: 0; }
+
+    /* ===== ZONES ===== */
+    .zones { padding: 80px 0; background: var(--blue); color: var(--white); }
+    .zones .section-title { color: var(--white); }
+    .zones .section-sub { color: #94A3B8; }
+    .zones-grid { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+    .zone-chip {
+      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15);
+      color: #CBD5E1; padding: 8px 20px; border-radius: 50px;
+      font-size: .88rem; transition: var(--trans);
+    }
+    .zone-chip:hover { background: rgba(249,115,22,.2); border-color: var(--orange); color: var(--white); }
+    .zone-chip.primary { background: var(--orange); border-color: var(--orange); color: var(--white); font-weight: 700; }
+
+    /* ===== TESTIMONIALS ===== */
+    .testimonials { padding: 100px 0; background: var(--gray-l); }
+    .reviews-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+    .review-card { background: var(--white); border-radius: var(--radius); padding: 28px; box-shadow: var(--shadow); }
+    .stars { color: #F59E0B; font-size: 1.1rem; margin-bottom: 12px; }
+    .review-text { color: var(--dark); font-size: .95rem; line-height: 1.7; font-style: italic; margin-bottom: 20px; }
+    .reviewer { display: flex; align-items: center; gap: 12px; }
+    .reviewer-avatar {
+      width: 42px; height: 42px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--blue), var(--blue-l));
+      display: flex; align-items: center; justify-content: center;
+      color: var(--white); font-weight: 700; font-size: .95rem;
+    }
+    .reviewer-name { font-weight: 700; font-size: .9rem; }
+    .reviewer-date { font-size: .78rem; color: var(--gray); }
+
+    /* ===== TARIFS ===== */
+    .tarifs { padding: 100px 0; }
+    .tarifs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+    .tarif-card {
+      border: 2px solid var(--gray-l); border-radius: var(--radius);
+      padding: 36px 28px; text-align: center; transition: var(--trans);
+    }
+    .tarif-card.featured { border-color: var(--orange); position: relative; }
+    .tarif-card.featured::before {
+      content: 'Populaire'; position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+      background: var(--orange); color: var(--white); font-size: .75rem; font-weight: 700;
+      padding: 4px 16px; border-radius: 50px;
+    }
+    .tarif-card:hover { border-color: var(--orange); transform: translateY(-4px); box-shadow: var(--shadow); }
+    .tarif-icon { font-size: 2.5rem; margin-bottom: 12px; }
+    .tarif-name { font-size: 1.1rem; font-weight: 700; color: var(--blue); margin-bottom: 8px; }
+    .tarif-price { font-size: 2.2rem; font-weight: 800; color: var(--orange); line-height: 1.1; }
+    .tarif-unit { font-size: .85rem; color: var(--gray); }
+    .tarif-desc { font-size: .88rem; color: var(--gray); margin: 16px 0; }
+    .tarif-features { text-align: left; display: flex; flex-direction: column; gap: 8px; margin-top: 20px; }
+    .tarif-feature { display: flex; gap: 8px; align-items: center; font-size: .88rem; color: var(--dark); }
+    .tarif-feature svg { flex-shrink: 0; color: var(--orange); }
+    .tarif-note { text-align: center; margin-top: 48px; color: var(--gray); font-size: .9rem; }
+
+    /* ===== CONTACT ===== */
+    .contact { padding: 100px 0; background: var(--gray-l); }
+    .contact-grid { display: grid; grid-template-columns: 1fr 1.4fr; gap: 60px; align-items: start; }
+    .contact-info h2 { font-size: 1.8rem; font-weight: 800; color: var(--blue); margin-bottom: 12px; }
+    .contact-info p { color: var(--gray); margin-bottom: 32px; }
+    .contact-items { display: flex; flex-direction: column; gap: 20px; }
+    .contact-item { display: flex; gap: 16px; align-items: flex-start; }
+    .contact-item-icon {
+      width: 48px; height: 48px; border-radius: 12px; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--blue), var(--blue-l));
+      display: flex; align-items: center; justify-content: center; color: var(--white);
+    }
+    .contact-item-label { font-size: .78rem; color: var(--gray); margin-bottom: 2px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+    .contact-item-value { font-size: 1rem; font-weight: 700; color: var(--blue); }
+    .contact-item-value a { color: inherit; transition: color var(--trans); }
+    .contact-item-value a:hover { color: var(--orange); }
+    .contact-form-card { background: var(--white); border-radius: 20px; padding: 40px; box-shadow: var(--shadow); }
+    .form-title { font-size: 1.3rem; font-weight: 800; color: var(--blue); margin-bottom: 6px; }
+    .form-sub { font-size: .88rem; color: var(--gray); margin-bottom: 28px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px; }
+    .form-group label { font-size: .82rem; font-weight: 600; color: var(--blue); }
+    .form-group input, .form-group select, .form-group textarea {
+      border: 2px solid #E5E7EB; border-radius: 10px; padding: 12px 16px;
+      font-size: .92rem; font-family: inherit; color: var(--dark);
+      transition: border-color var(--trans); outline: none; width: 100%;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--orange); }
+    .form-group textarea { resize: vertical; min-height: 110px; }
+    .form-submit { width: 100%; padding: 16px; font-size: 1rem; border-radius: 12px; }
+    .form-success {
+      display: none; background: #D1FAE5; color: #065F46; border-radius: 10px;
+      padding: 14px 18px; font-size: .9rem; font-weight: 600; text-align: center; margin-top: 14px;
+    }
+
+    /* ===== FLOATING BUTTONS ===== */
+    .float-btns {
+      position: fixed; bottom: 24px; right: 24px; display: flex;
+      flex-direction: column; gap: 12px; z-index: 999;
+    }
+    .float-btn {
+      width: 56px; height: 56px; border-radius: 50%; display: flex;
+      align-items: center; justify-content: center; box-shadow: 0 4px 16px rgba(0,0,0,.2);
+      transition: var(--trans); border: none; cursor: pointer; text-decoration: none;
+    }
+    .float-btn:hover { transform: scale(1.1); }
+    .float-phone { background: var(--orange); }
+    .float-wa    { background: #25D366; }
+    .float-up    { background: var(--blue); }
+
+    /* ===== FOOTER ===== */
+    .footer { background: var(--dark); color: #9CA3AF; padding: 60px 0 0; }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 48px; }
+    .footer-brand .logo-text { color: var(--white); }
+    .footer-desc { font-size: .88rem; line-height: 1.7; margin-top: 14px; }
+    .footer-social { display: flex; gap: 10px; margin-top: 20px; }
+    .footer-social a {
+      width: 36px; height: 36px; border-radius: 8px; background: rgba(255,255,255,.06);
+      display: flex; align-items: center; justify-content: center;
+      color: #9CA3AF; transition: var(--trans); font-size: .9rem;
+    }
+    .footer-social a:hover { background: var(--orange); color: var(--white); }
+    .footer-col h4 { font-size: .9rem; font-weight: 700; color: var(--white); margin-bottom: 18px; }
+    .footer-links { display: flex; flex-direction: column; gap: 10px; }
+    .footer-links a { font-size: .85rem; transition: color var(--trans); }
+    .footer-links a:hover { color: var(--orange); }
+    .footer-bottom {
+      border-top: 1px solid rgba(255,255,255,.08);
+      padding: 20px 0; display: flex; justify-content: space-between;
+      align-items: center; font-size: .8rem; flex-wrap: wrap; gap: 8px;
+    }
+    .footer-bottom a { color: #6B7280; transition: color var(--trans); }
+    .footer-bottom a:hover { color: var(--orange); }
+
+    /* ===== COOKIE BANNER ===== */
+    .cookie-banner {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 2000;
+      background: var(--dark); color: #CBD5E1; padding: 18px 24px;
+      display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+      box-shadow: 0 -4px 20px rgba(0,0,0,.3);
+      transform: translateY(100%); transition: transform .4s ease;
+    }
+    .cookie-banner.show { transform: translateY(0); }
+    .cookie-text { flex: 1; font-size: .85rem; }
+    .cookie-text a { color: var(--orange); }
+    .cookie-btns { display: flex; gap: 10px; }
+    .cookie-accept { background: var(--orange); color: var(--white); border: none; padding: 9px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: .85rem; }
+    .cookie-refuse { background: transparent; color: #9CA3AF; border: 1px solid #374151; padding: 9px 20px; border-radius: 8px; cursor: pointer; font-size: .85rem; }
+
+    /* ===== MOBILE ===== */
+    @media (max-width: 900px) {
+      .hero-grid { grid-template-columns: 1fr; gap: 40px; }
+      .hero { padding: 70px 0 60px; }
+      .hero-card { display: none; }
+      .about-grid { grid-template-columns: 1fr; }
+      .about-visual { min-height: 260px; }
+      .contact-grid { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+      .topbar-right { display: none; }
+    }
+    @media (max-width: 640px) {
+      .nav-links { display: none; flex-direction: column; position: absolute; top: 70px; left: 0; right: 0; background: var(--white); padding: 20px; box-shadow: 0 8px 20px rgba(0,0,0,.1); gap: 4px; }
+      .nav-links.open { display: flex; }
+      .hamburger { display: block; }
+      .form-row { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr; }
+      .hero-stats { gap: 20px; }
+      .float-btns { bottom: 16px; right: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="container">
+    <span class="topbar-item">
+      <svg width="14" height="14" fill="currentColor" viewBox="0 0 20 20"><path d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9z"/></svg>
+      Chambéry & Savoie / Haute-Savoie
+    </span>
+    <div class="topbar-right">
+      <a href="mailto:ams.chambery73@gmail.com" class="topbar-item">
+        <svg width="14" height="14" fill="currentColor" viewBox="0 0 20 20"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/></svg>
+        ams.chambery73@gmail.com
+      </a>
+      <a href="tel:0767915132" class="topbar-item">
+        <svg width="14" height="14" fill="currentColor" viewBox="0 0 20 20"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/></svg>
+        07 67 91 51 32
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="container nav-inner">
+    <a href="#accueil" class="logo" aria-label="AMS Services accueil">
+      <div class="logo-icon">A</div>
+      <div>
+        <div class="logo-text">AMS<span>'</span>SERVICES</div>
+        <div class="logo-sub">Dépannage &amp; Réparation</div>
+      </div>
+    </a>
+    <ul class="nav-links" id="nav-links" role="navigation">
+      <li><a href="#accueil" class="active">Accueil</a></li>
+      <li><a href="#services">Services</a></li>
+      <li><a href="#tarifs">Tarifs</a></li>
+      <li><a href="#about">À Propos</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <a href="tel:0767915132" class="btn btn-primary nav-cta">
+      <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/></svg>
+      Appeler maintenant
+    </a>
+    <button class="hamburger" id="hamburger" aria-label="Menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- URGENCE BAND -->
+<div class="urgence-band">
+  🚨 Urgence 24h/24 &mdash; 7j/7 &mdash; Appelez le <a href="tel:0767915132">07 67 91 51 32</a> ou le <a href="tel:0743692280">07 43 69 22 80</a>
+</div>
+
+<!-- HERO -->
+<section class="hero" id="accueil">
+  <div class="container">
+    <div class="hero-grid">
+      <div>
+        <div class="hero-badge">
+          <span class="badge-dot"></span>
+          Disponible maintenant — Intervention rapide
+        </div>
+        <h1>Appelez-nous pour tous vos travaux de <em>dépannage</em></h1>
+        <p>Votre partenaire de confiance à Chambéry pour tous vos besoins de dépannage. Plomberie, électricité, serrurerie et bien plus.</p>
+        <div class="hero-btns">
+          <a href="tel:0767915132" class="btn btn-primary">
+            <svg width="18" height="18" fill="currentColor" viewBox="0 0 20 20"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/></svg>
+            Appel gratuit
+          </a>
+          <a href="#contact" class="btn btn-outline">Devis gratuit</a>
+        </div>
+        <div class="hero-stats">
+          <div class="stat"><div class="stat-n">24/7</div><div class="stat-l">Disponibilité</div></div>
+          <div class="stat"><div class="stat-n">6</div><div class="stat-l">Services</div></div>
+          <div class="stat"><div class="stat-n">15+</div><div class="stat-l">Communes couvertes</div></div>
+          <div class="stat"><div class="stat-n">100%</div><div class="stat-l">Satisfaits</div></div>
+        </div>
+      </div>
+      <div class="hero-card">
+        <div>
+          <div class="hero-card-title">📞 Ligne urgence</div>
+          <div class="hero-phone"><a href="tel:0767915132" style="color:inherit">07 67 91 51 32</a></div>
+          <div class="hero-phone-sub">Réponse immédiate</div>
+        </div>
+        <div class="hero-divider"></div>
+        <div>
+          <div class="hero-card-title">📱 Ligne 2</div>
+          <div class="hero-phone" style="font-size:1.3rem"><a href="tel:0743692280" style="color:inherit">07 43 69 22 80</a></div>
+        </div>
+        <div class="hero-divider"></div>
+        <div class="hero-service-list">
+          <div class="hero-service-item">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            Plomberie d'urgence
+          </div>
+          <div class="hero-service-item">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            Ouverture de porte
+          </div>
+          <div class="hero-service-item">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            Panne électrique
+          </div>
+          <div class="hero-service-item">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            Volets roulants
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section class="services" id="services">
+  <div class="container">
+    <div class="text-center">
+      <span class="tag">Ce que nous faisons</span>
+      <h2 class="section-title">Nos Services</h2>
+      <p class="section-sub">Des interventions rapides et professionnelles pour tous vos besoins à domicile ou en entreprise.</p>
+    </div>
+    <div class="services-grid">
+
+      <div class="service-card reveal">
+        <div class="service-icon">🔧</div>
+        <h3>Plomberie</h3>
+        <p>Détection et réparation de fuites, débouchage de canalisations, installation et remplacement de chauffe-eau, réparation WC, robinetterie et sanitaires.</p>
+        <div class="service-tags">
+          <span class="service-tag">Fuites</span>
+          <span class="service-tag">Débouchage</span>
+          <span class="service-tag">Chauffe-eau</span>
+          <span class="service-tag">WC</span>
+        </div>
+      </div>
+
+      <div class="service-card reveal">
+        <div class="service-icon">⚡</div>
+        <h3>Électricité</h3>
+        <p>Diagnostic et réparation de pannes, installation de prises et interrupteurs, remplacement de tableaux électriques, mise aux normes de votre installation.</p>
+        <div class="service-tags">
+          <span class="service-tag">Pannes</span>
+          <span class="service-tag">Tableaux</span>
+          <span class="service-tag">Prises</span>
+          <span class="service-tag">Mise aux normes</span>
+        </div>
+      </div>
+
+      <div class="service-card reveal">
+        <div class="service-icon">🔐</div>
+        <h3>Serrurerie</h3>
+        <p>Ouverture de portes sans destruction, remplacement de serrures, installation de systèmes de sécurité, blindage de portes, dépannages d'urgence 24h/24.</p>
+        <div class="service-tags">
+          <span class="service-tag">Ouverture</span>
+          <span class="service-tag">Serrures</span>
+          <span class="service-tag">Urgence</span>
+          <span class="service-tag">Blindage</span>
+        </div>
+      </div>
+
+      <div class="service-card reveal">
+        <div class="service-icon">🪟</div>
+        <h3>Volets Roulants</h3>
+        <p>Réparation de volets roulants bloqués, remplacement de lames cassées, motorisation de volets manuels, installation de nouveaux volets.</p>
+        <div class="service-tags">
+          <span class="service-tag">Réparation</span>
+          <span class="service-tag">Motorisation</span>
+          <span class="service-tag">Installation</span>
+        </div>
+      </div>
+
+      <div class="service-card reveal">
+        <div class="service-icon">🛠️</div>
+        <h3>Bricolage à Domicile</h3>
+        <p>Fixation de meubles, étagères et tableaux, montage de meubles en kit, petites réparations diverses, pose de rideaux et tringles, travaux courants.</p>
+        <div class="service-tags">
+          <span class="service-tag">Fixations</span>
+          <span class="service-tag">Montage</span>
+          <span class="service-tag">Réparations</span>
+        </div>
+      </div>
+
+      <div class="service-card reveal">
+        <div class="service-icon">🏠</div>
+        <h3>Nettoyage de Toitures</h3>
+        <p>Démoussage et nettoyage haute pression de toitures, traitement anti-mousse, nettoyage de gouttières, inspection de l'état de votre toiture.</p>
+        <div class="service-tags">
+          <span class="service-tag">Démoussage</span>
+          <span class="service-tag">Haute pression</span>
+          <span class="service-tag">Gouttières</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section class="about" id="about">
+  <div class="container">
+    <div class="about-grid">
+      <div class="about-visual reveal">
+        <div class="about-visual-inner">
+          <div class="about-visual-icon">🏆</div>
+          <h3 style="font-size:1.4rem;font-weight:800;margin-bottom:8px;">Votre confiance, notre priorité</h3>
+          <p style="font-size:.9rem;color:#94A3B8;">Interventions soignées et garanties dans toute la Savoie.</p>
+        </div>
+        <div class="about-badge-float">
+          <div class="n">24/7</div>
+          <div class="l">Disponible</div>
+        </div>
+      </div>
+      <div class="about-content reveal">
+        <span class="tag">À Propos</span>
+        <h2>Votre partenaire de confiance à Chambéry</h2>
+        <p>AMS'SERVICES est une entreprise locale spécialisée dans le dépannage et la maintenance à domicile en Savoie et Haute-Savoie. Nous intervenons rapidement chez vous pour tous vos problèmes du quotidien.</p>
+        <p>Notre équipe de professionnels qualifiés s'engage à vous fournir un service de qualité, dans le respect de votre domicile et de votre budget. Chaque intervention est soigneusement réalisée avec du matériel adapté.</p>
+        <div class="about-values">
+          <div class="about-value">
+            <div class="about-value-icon">
+              <svg width="20" height="20" fill="none" stroke="#F97316" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            </div>
+            <div>
+              <h4>Réactivité</h4>
+              <p>Intervention rapide en urgence, disponible 7j/7 et 24h/24 pour vos dépannages.</p>
+            </div>
+          </div>
+          <div class="about-value">
+            <div class="about-value-icon">
+              <svg width="20" height="20" fill="none" stroke="#F97316" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+            </div>
+            <div>
+              <h4>Qualité garantie</h4>
+              <p>Travaux soignés avec du matériel professionnel et des techniciens expérimentés.</p>
+            </div>
+          </div>
+          <div class="about-value">
+            <div class="about-value-icon">
+              <svg width="20" height="20" fill="none" stroke="#F97316" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <div>
+              <h4>Tarifs transparents</h4>
+              <p>Devis gratuit avant intervention, sans surprise. Tarifs clairs et compétitifs.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ZONES -->
+<section class="zones">
+  <div class="container text-center">
+    <span class="tag" style="background:rgba(249,115,22,.2);color:#FB923C">Zone d'intervention</span>
+    <h2 class="section-title">Nous intervenons dans toute la région</h2>
+    <p class="section-sub">Chambéry et ses environs, Aix-les-Bains, et toute la Savoie / Haute-Savoie.</p>
+    <div class="zones-grid">
+      <span class="zone-chip primary">Chambéry</span>
+      <span class="zone-chip">Aix-les-Bains</span>
+      <span class="zone-chip">La Motte-Servolex</span>
+      <span class="zone-chip">Cognin</span>
+      <span class="zone-chip">Barberaz</span>
+      <span class="zone-chip">Bassens</span>
+      <span class="zone-chip">La Ravoire</span>
+      <span class="zone-chip">Saint-Alban-Leysse</span>
+      <span class="zone-chip">Challes-les-Eaux</span>
+      <span class="zone-chip">Sonnaz</span>
+      <span class="zone-chip">Voglans</span>
+      <span class="zone-chip">Méry</span>
+      <span class="zone-chip">Toute la Savoie</span>
+      <span class="zone-chip">Haute-Savoie</span>
+    </div>
+  </div>
+</section>
+
+<!-- TARIFS -->
+<section class="tarifs" id="tarifs">
+  <div class="container">
+    <div class="text-center">
+      <span class="tag">Transparence</span>
+      <h2 class="section-title">Nos Tarifs</h2>
+      <p class="section-sub">Des prix clairs et honnêtes. Devis gratuit avant toute intervention, sans engagement.</p>
+    </div>
+    <div class="tarifs-grid">
+      <div class="tarif-card reveal">
+        <div class="tarif-icon">🔧</div>
+        <div class="tarif-name">Intervention Simple</div>
+        <div class="tarif-price">Dès 49€</div>
+        <div class="tarif-unit">selon la prestation</div>
+        <div class="tarif-desc">Pour les petites réparations et dépannages courants.</div>
+        <ul class="tarif-features">
+          <li class="tarif-feature"><svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>Déplacement inclus</li>
+          <li class="tarif-feature"><svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>Devis gratuit</li>
+          <li class="tarif-feature"><svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>Paiement à l'issue</li>
+        </ul>
+      </div>
+      <div class="tarif-card featured reveal">
+        <div class="tarif-icon">🚨</div>
+        <div class="tarif-name">Urgence 24h/24</div>
+        <div class="tarif-price">Sur devis</div>
+        <div class="tarif-unit">intervention immédiate</div>
+        <div class="tarif-desc">Disponible nuit et week-end pour vos urgences.</div>
+        <ul class="tarif-features">
+          <li class="tarif-feature"><svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>Réponse immédiate</li>
+          <li class="tarif-feature"><svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>7j/7 — nuits incluses</li>
+          <li class="tarif-feature"><svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>Devis avant travaux</li>
+        </ul>
+      </div>
+      <div class="tarif-card reveal">
+        <div class="tarif-icon">📋</div>
+        <div class="tarif-name">Travaux Importants</div>
+        <div class="tarif-price">Devis gratuit</div>
+        <div class="tarif-unit">sans engagement</div>
+        <div class="tarif-desc">Rénovation, installation complète, chantier multi-services.</div>
+        <ul class="tarif-features">
+          <li class="tarif-feature"><svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>Étude personnalisée</li>
+          <li class="tarif-feature"><svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>Tarif compétitif</li>
+          <li class="tarif-feature"><svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>Plusieurs services</li>
+        </ul>
+      </div>
+    </div>
+    <p class="tarif-note">* Tous nos tarifs incluent le déplacement dans la zone Chambéry. Contactez-nous pour un devis précis.</p>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials">
+  <div class="container">
+    <div class="text-center">
+      <span class="tag">Ils nous font confiance</span>
+      <h2 class="section-title">Avis de nos clients</h2>
+      <p class="section-sub">La satisfaction de nos clients est notre meilleure récompense.</p>
+    </div>
+    <div class="reviews-grid">
+      <div class="review-card reveal">
+        <div class="stars">★★★★★</div>
+        <p class="review-text">"Service rapide et efficace, je recommande vivement AMS'SERVICES ! Intervention en moins d'une heure pour une fuite d'eau."</p>
+        <div class="reviewer">
+          <div class="reviewer-avatar">J</div>
+          <div><div class="reviewer-name">Jean M.</div><div class="reviewer-date">Chambéry</div></div>
+        </div>
+      </div>
+      <div class="review-card reveal">
+        <div class="stars">★★★★★</div>
+        <p class="review-text">"Très satisfaite de la réparation de mes volets roulants, un travail impeccable ! Technicien ponctuel et très professionnel."</p>
+        <div class="reviewer">
+          <div class="reviewer-avatar">M</div>
+          <div><div class="reviewer-name">Marie L.</div><div class="reviewer-date">Aix-les-Bains</div></div>
+        </div>
+      </div>
+      <div class="review-card reveal">
+        <div class="stars">★★★★★</div>
+        <p class="review-text">"Porte claquée à 22h, ils sont intervenus en 30 minutes chrono. Prix raisonnable et travail soigné. Merci AMS'SERVICES !"</p>
+        <div class="reviewer">
+          <div class="reviewer-avatar">P</div>
+          <div><div class="reviewer-name">Pierre D.</div><div class="reviewer-date">La Motte-Servolex</div></div>
+        </div>
+      </div>
+      <div class="review-card reveal">
+        <div class="stars">★★★★☆</div>
+        <p class="review-text">"Très bon service pour la remise en état de mon tableau électrique. Explications claires, devis respecté. Je recommande."</p>
+        <div class="reviewer">
+          <div class="reviewer-avatar">S</div>
+          <div><div class="reviewer-name">Sophie R.</div><div class="reviewer-date">Cognin</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact" id="contact">
+  <div class="container">
+    <div class="contact-grid">
+      <div>
+        <span class="tag">Contactez-nous</span>
+        <h2 class="contact-info">Nous sommes à votre service</h2>
+        <p style="color:var(--gray);margin-bottom:32px;">Remplissez le formulaire ou appelez-nous directement. Nous répondons sous 24h en journée, immédiatement pour les urgences.</p>
+        <div class="contact-items">
+          <div class="contact-item">
+            <div class="contact-item-icon">
+              <svg width="22" height="22" fill="currentColor" viewBox="0 0 20 20"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/></svg>
+            </div>
+            <div>
+              <div class="contact-item-label">Téléphone principal</div>
+              <div class="contact-item-value"><a href="tel:0767915132">07 67 91 51 32</a></div>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-item-icon">
+              <svg width="22" height="22" fill="currentColor" viewBox="0 0 20 20"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/></svg>
+            </div>
+            <div>
+              <div class="contact-item-label">Téléphone secondaire</div>
+              <div class="contact-item-value"><a href="tel:0743692280">07 43 69 22 80</a></div>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-item-icon">
+              <svg width="22" height="22" fill="currentColor" viewBox="0 0 20 20"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/></svg>
+            </div>
+            <div>
+              <div class="contact-item-label">Email</div>
+              <div class="contact-item-value"><a href="mailto:ams.chambery73@gmail.com">ams.chambery73@gmail.com</a></div>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-item-icon">
+              <svg width="22" height="22" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg>
+            </div>
+            <div>
+              <div class="contact-item-label">Disponibilité</div>
+              <div class="contact-item-value">24h/24 — 7j/7</div>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-item-icon">
+              <svg width="22" height="22" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9z" clip-rule="evenodd"/></svg>
+            </div>
+            <div>
+              <div class="contact-item-label">Zone</div>
+              <div class="contact-item-value">Chambéry &amp; Savoie / Haute-Savoie</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="contact-form-card reveal">
+        <div class="form-title">Demande de devis gratuit</div>
+        <div class="form-sub">Réponse sous 2h en journée. Urgences : appelez directement.</div>
+        <form id="contact-form" novalidate>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="prenom">Prénom *</label>
+              <input type="text" id="prenom" name="prenom" placeholder="Jean" required />
+            </div>
+            <div class="form-group">
+              <label for="nom">Nom *</label>
+              <input type="text" id="nom" name="nom" placeholder="Dupont" required />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="telephone">Téléphone *</label>
+              <input type="tel" id="telephone" name="telephone" placeholder="06 XX XX XX XX" required />
+            </div>
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input type="email" id="email" name="email" placeholder="jean@exemple.fr" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="service">Service souhaité *</label>
+            <select id="service" name="service" required>
+              <option value="">Sélectionnez un service…</option>
+              <option value="plomberie">Plomberie</option>
+              <option value="electricite">Électricité</option>
+              <option value="serrurerie">Serrurerie</option>
+              <option value="volets">Volets Roulants</option>
+              <option value="bricolage">Bricolage à Domicile</option>
+              <option value="toiture">Nettoyage de Toiture</option>
+              <option value="autre">Autre</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="urgence">Niveau d'urgence</label>
+            <select id="urgence" name="urgence">
+              <option value="normal">Normal (sous 48h)</option>
+              <option value="rapide">Rapide (aujourd'hui)</option>
+              <option value="urgence">Urgence immédiate</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="message">Décrivez votre problème *</label>
+            <textarea id="message" name="message" placeholder="Décrivez le problème ou les travaux souhaités…" required></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary form-submit">
+            <svg width="18" height="18" fill="currentColor" viewBox="0 0 20 20"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/></svg>
+            Envoyer ma demande
+          </button>
+          <div class="form-success" id="form-success">
+            ✅ Votre demande a bien été envoyée ! Nous vous contactons rapidement.
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="logo">
+          <div class="logo-icon">A</div>
+          <div>
+            <div class="logo-text">AMS<span style="color:var(--orange)">'</span>SERVICES</div>
+            <div class="logo-sub" style="color:#6B7280">Dépannage &amp; Réparation</div>
+          </div>
+        </div>
+        <p class="footer-desc">Votre partenaire de confiance à Chambéry pour tous vos besoins de dépannage. Disponible 24h/24 et 7j/7.</p>
+        <div class="footer-social">
+          <a href="#" aria-label="Facebook">f</a>
+          <a href="#" aria-label="Instagram">in</a>
+          <a href="#" aria-label="Twitter">t</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Services</h4>
+        <ul class="footer-links">
+          <li><a href="#services">Plomberie</a></li>
+          <li><a href="#services">Électricité</a></li>
+          <li><a href="#services">Serrurerie</a></li>
+          <li><a href="#services">Volets Roulants</a></li>
+          <li><a href="#services">Bricolage</a></li>
+          <li><a href="#services">Toiture</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Navigation</h4>
+        <ul class="footer-links">
+          <li><a href="#accueil">Accueil</a></li>
+          <li><a href="#services">Nos Services</a></li>
+          <li><a href="#tarifs">Tarifs</a></li>
+          <li><a href="#about">À Propos</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <ul class="footer-links">
+          <li><a href="tel:0767915132">07 67 91 51 32</a></li>
+          <li><a href="tel:0743692280">07 43 69 22 80</a></li>
+          <li><a href="mailto:ams.chambery73@gmail.com">ams.chambery73@gmail.com</a></li>
+          <li style="color:#6B7280;font-size:.82rem;margin-top:8px;">Chambéry &amp; région Savoie</li>
+          <li style="color:#6B7280;font-size:.82rem;">24h/24 — 7j/7</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 AMS'SERVICES — Tous droits réservés</span>
+      <div style="display:flex;gap:20px">
+        <a href="#">Mentions légales</a>
+        <a href="#">Politique de confidentialité</a>
+        <a href="#">Cookies</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- FLOATING BUTTONS -->
+<div class="float-btns">
+  <a href="#accueil" class="float-btn float-up" aria-label="Haut de page" id="scroll-top" style="display:none">
+    <svg width="22" height="22" fill="white" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clip-rule="evenodd"/></svg>
+  </a>
+  <a href="https://wa.me/33767915132" class="float-btn float-wa" aria-label="WhatsApp" target="_blank" rel="noopener">
+    <svg width="26" height="26" fill="white" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+  </a>
+  <a href="tel:0767915132" class="float-btn float-phone" aria-label="Appeler">
+    <svg width="24" height="24" fill="white" viewBox="0 0 20 20"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/></svg>
+  </a>
+</div>
+
+<!-- COOKIE BANNER -->
+<div class="cookie-banner" id="cookie-banner" role="dialog" aria-label="Cookies">
+  <p class="cookie-text">
+    Nous utilisons des cookies pour améliorer votre expérience. En continuant, vous acceptez notre
+    <a href="#">politique de confidentialité</a>.
+  </p>
+  <div class="cookie-btns">
+    <button class="cookie-accept" id="cookie-accept">Accepter</button>
+    <button class="cookie-refuse" id="cookie-refuse">Refuser</button>
+  </div>
+</div>
+
+<script>
+  /* ===== HAMBURGER ===== */
+  const hamburger = document.getElementById('hamburger');
+  const navLinks  = document.getElementById('nav-links');
+  hamburger.addEventListener('click', () => {
+    const open = navLinks.classList.toggle('open');
+    hamburger.setAttribute('aria-expanded', open);
+  });
+  navLinks.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => { navLinks.classList.remove('open'); hamburger.setAttribute('aria-expanded', false); });
+  });
+
+  /* ===== ACTIVE NAV ===== */
+  const sections = document.querySelectorAll('section[id]');
+  const navAs    = document.querySelectorAll('.nav-links a');
+  window.addEventListener('scroll', () => {
+    let cur = '';
+    sections.forEach(s => { if (window.scrollY >= s.offsetTop - 120) cur = s.id; });
+    navAs.forEach(a => { a.classList.toggle('active', a.getAttribute('href') === '#' + cur); });
+
+    /* scroll-top button */
+    document.getElementById('scroll-top').style.display = window.scrollY > 400 ? 'flex' : 'none';
+  }, { passive: true });
+
+  /* ===== REVEAL ON SCROLL ===== */
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  /* ===== FORM ===== */
+  document.getElementById('contact-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const required = this.querySelectorAll('[required]');
+    let valid = true;
+    required.forEach(f => {
+      if (!f.value.trim()) { f.style.borderColor = '#EF4444'; valid = false; }
+      else f.style.borderColor = '';
+    });
+    if (!valid) return;
+    /* Simulate send */
+    const btn = this.querySelector('.form-submit');
+    btn.textContent = 'Envoi en cours…'; btn.disabled = true;
+    setTimeout(() => {
+      document.getElementById('form-success').style.display = 'block';
+      btn.style.display = 'none';
+      this.querySelectorAll('input,select,textarea').forEach(f => f.value = '');
+    }, 1200);
+  });
+
+  /* ===== COOKIES ===== */
+  if (!localStorage.getItem('cookie-consent')) {
+    setTimeout(() => document.getElementById('cookie-banner').classList.add('show'), 1500);
+  }
+  document.getElementById('cookie-accept').addEventListener('click', () => {
+    localStorage.setItem('cookie-consent', 'accepted');
+    document.getElementById('cookie-banner').classList.remove('show');
+  });
+  document.getElementById('cookie-refuse').addEventListener('click', () => {
+    localStorage.setItem('cookie-consent', 'refused');
+    document.getElementById('cookie-banner').classList.remove('show');
+  });
+</script>
+</body>
+</html>
