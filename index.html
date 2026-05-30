@@ -269,11 +269,10 @@
         <div class="form-title">Demande de devis gratuit</div>
         <div class="form-sub">Réponse sous 2h en journée. Urgences : appelez directement.</div>
         <form id="contact-form" novalidate>
-          <!-- Web3Forms — clé liée à ctdvda@gmail.com (test) -->
-          <input type="hidden" name="access_key" value="VOTRE_CLE_WEB3FORMS" />
-          <input type="hidden" name="subject" value="Nouvelle demande de devis — AMS'SERVICES" />
-          <input type="hidden" name="from_name" value="Site AMS Services" />
-          <input type="checkbox" name="botcheck" style="display:none" />
+          <!-- FormSubmit — envoi direct vers ctdvda@gmail.com, sans clé API -->
+          <input type="hidden" name="_subject" value="Nouvelle demande de devis — AMS'SERVICES" />
+          <input type="hidden" name="_captcha" value="false" />
+          <input type="hidden" name="_template" value="table" />
           <div class="form-row">
             <div class="form-group"><label for="prenom">Prénom *</label><input type="text" id="prenom" name="prenom" placeholder="Jean" required /></div>
             <div class="form-group"><label for="nom">Nom *</label><input type="text" id="nom" name="nom" placeholder="Dupont" required /></div>
@@ -286,7 +285,7 @@
             <select id="service" name="service" required>
               <option value="">Sélectionnez un service…</option>
               <option>Plomberie</option><option>Électricité</option><option>Serrurerie</option>
-              <option>Volets Roulants</option><option>Bricolage</option><option>Nettoyage de Toiture</option><option>Autre</option>
+              <option>Volets Roulants</option><option>Bricolage</option><option>Nettoyage de Toiture</option><option>Nettoyage de Terrasse</option><option>Autre</option>
             </select>
           </div>
           <div class="form-group"><label for="urgence">Niveau d'urgence</label>
@@ -312,21 +311,39 @@
 <div id="footer-slot"></div>
 <script src="components.js"></script>
 <script>
-/* ── Formulaire de contact → Web3Forms ── */
+/* ── Formulaire de contact → FormSubmit (AJAX, sans clé API) ── */
 document.getElementById('contact-form').addEventListener('submit', async function(e) {
   e.preventDefault();
-  const btn = document.getElementById('form-btn');
+  const btn       = document.getElementById('form-btn');
   const successEl = document.getElementById('form-success');
   const errorEl   = document.getElementById('form-error');
+
+  // Validation champs requis
+  let valid = true;
+  this.querySelectorAll('[required]').forEach(f => {
+    if (!f.value.trim()) { f.style.borderColor = '#EF4444'; valid = false; }
+    else f.style.borderColor = '';
+  });
+  if (!valid) return;
+
   btn.disabled = true;
   btn.innerHTML = '⏳ Envoi en cours…';
   successEl.style.display = 'none';
   errorEl.style.display   = 'none';
-  const data = new FormData(this);
+
+  // Construire objet JSON depuis FormData (FormSubmit AJAX attend du JSON)
+  const formData = new FormData(this);
+  const data = {};
+  formData.forEach((v, k) => { data[k] = v; });
+
   try {
-    const res = await fetch('https://api.web3forms.com/submit', { method: 'POST', body: data });
+    const res  = await fetch('https://formsubmit.co/ajax/ctdvda@gmail.com', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body:    JSON.stringify(data)
+    });
     const json = await res.json();
-    if (json.success) {
+    if (json.success === 'true' || json.success === true) {
       successEl.style.display = 'block';
       this.reset();
     } else {

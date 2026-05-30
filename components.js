@@ -180,10 +180,9 @@ function renderDevisModal() {
       <h3 id="devis-modal-title">📋 Demande de devis gratuit</h3>
       <p class="devis-modal-sub">Réponse rapide — Intervention à partir de 150€</p>
       <form id="devis-modal-form" novalidate>
-        <input type="hidden" name="access_key" value="VOTRE_CLE_WEB3FORMS" />
-        <input type="hidden" name="subject" value="Nouvelle demande de devis — AMS'SERVICES" />
-        <input type="hidden" name="from_name" value="Site AMS Services" />
-        <input type="checkbox" name="botcheck" style="display:none" />
+        <input type="hidden" name="_subject" value="Nouvelle demande de devis — AMS'SERVICES" />
+        <input type="hidden" name="_captcha" value="false" />
+        <input type="hidden" name="_template" value="table" />
         <div class="devis-field-row">
           <input type="text"  name="nom"       placeholder="Votre nom *"      required class="devis-input" />
           <input type="tel"   name="telephone" placeholder="Téléphone *"      required class="devis-input" />
@@ -291,36 +290,28 @@ function initCommon() {
 
   document.getElementById('devis-modal-form')?.addEventListener('submit', async function(e) {
     e.preventDefault();
-    const btn      = document.getElementById('devis-modal-btn');
+    const btn       = document.getElementById('devis-modal-btn');
     const successEl = document.getElementById('devis-modal-success');
     const errorEl   = document.getElementById('devis-modal-error');
     successEl.style.display = 'none'; errorEl.style.display = 'none';
     btn.disabled = true; btn.textContent = '⏳ Envoi en cours…';
-    const data = new FormData(this);
+    const formData = new FormData(this);
+    const data = {};
+    formData.forEach((v, k) => { data[k] = v; });
     try {
-      const res  = await fetch('https://api.web3forms.com/submit', { method: 'POST', body: data });
+      const res  = await fetch('https://formsubmit.co/ajax/ctdvda@gmail.com', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body:    JSON.stringify(data)
+      });
       const json = await res.json();
-      if (json.success) { successEl.style.display = 'block'; this.reset(); }
+      if (json.success === 'true' || json.success === true) { successEl.style.display = 'block'; this.reset(); }
       else { errorEl.style.display = 'block'; }
     } catch { errorEl.style.display = 'block'; }
     finally { btn.disabled = false; btn.textContent = 'Envoyer ma demande'; }
   });
 
-  // Contact form (if present)
-  document.getElementById('contact-form')?.addEventListener('submit', function(e) {
-    e.preventDefault();
-    const required = this.querySelectorAll('[required]');
-    let valid = true;
-    required.forEach(f => { if (!f.value.trim()) { f.style.borderColor = '#EF4444'; valid = false; } else f.style.borderColor = ''; });
-    if (!valid) return;
-    const btn = this.querySelector('.form-submit');
-    btn.textContent = 'Envoi en cours…'; btn.disabled = true;
-    setTimeout(() => {
-      document.getElementById('form-success').style.display = 'block';
-      btn.style.display = 'none';
-      this.querySelectorAll('input,select,textarea').forEach(f => f.value = '');
-    }, 1200);
-  });
+  // Contact form principal (géré par le script inline de index.html — ne pas ajouter de handler ici)
 }
 
 /* ---- Bootstrap ---- */
