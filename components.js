@@ -16,7 +16,8 @@ const AMS = {
     { name: 'Serrurerie',           icon: '🔐', slug: 'serrurerie.html' },
     { name: 'Volets Roulants',      icon: '🪟', slug: 'volets-roulants.html' },
     { name: 'Bricolage',            icon: '🛠️', slug: 'bricolage.html' },
-    { name: 'Nettoyage de Toiture', icon: '🏠', slug: 'nettoyage-toiture.html' },
+    { name: 'Nettoyage de Toiture',   icon: '🏠', slug: 'nettoyage-toiture.html' },
+    { name: 'Nettoyage de Terrasse',  icon: '🏡', slug: 'nettoyage-terrasse.html' },
   ]
 };
 
@@ -157,8 +158,55 @@ function renderFooter() {
           <a href="#">Cookies</a>
         </div>
       </div>
+      <div class="footer-credit">
+        Site réalisé par <strong>Charles THIERRY DE VILLE D'AVRAY</strong> &mdash; <a href="mailto:ctdvda@gmail.com">ctdvda@gmail.com</a> &mdash; <a href="tel:0661174516">06 61 17 45 16</a>
+      </div>
     </div>
   </footer>`;
+}
+
+function renderDevisModal() {
+  return `
+  <!-- Bouton flottant devis -->
+  <button class="float-devis-btn" id="float-devis-open" aria-label="Demander un devis gratuit">
+    <svg width="18" height="18" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/></svg>
+    Devis gratuit
+  </button>
+
+  <!-- Overlay modal devis -->
+  <div class="devis-modal-overlay" id="devis-modal-overlay" aria-hidden="true">
+    <div class="devis-modal" role="dialog" aria-modal="true" aria-labelledby="devis-modal-title">
+      <button class="devis-modal-close" id="devis-modal-close" aria-label="Fermer">&times;</button>
+      <h3 id="devis-modal-title">📋 Demande de devis gratuit</h3>
+      <p class="devis-modal-sub">Réponse rapide — Intervention à partir de 150€</p>
+      <form id="devis-modal-form" novalidate>
+        <input type="hidden" name="access_key" value="VOTRE_CLE_WEB3FORMS" />
+        <input type="hidden" name="subject" value="Nouvelle demande de devis — AMS'SERVICES" />
+        <input type="hidden" name="from_name" value="Site AMS Services" />
+        <input type="checkbox" name="botcheck" style="display:none" />
+        <div class="devis-field-row">
+          <input type="text"  name="nom"       placeholder="Votre nom *"      required class="devis-input" />
+          <input type="tel"   name="telephone" placeholder="Téléphone *"      required class="devis-input" />
+        </div>
+        <input type="email" name="email"    placeholder="Email (optionnel)"          class="devis-input" />
+        <select name="service" class="devis-input" required>
+          <option value="" disabled selected>Type de service *</option>
+          <option>Plomberie</option>
+          <option>Électricité</option>
+          <option>Serrurerie</option>
+          <option>Volets Roulants</option>
+          <option>Bricolage</option>
+          <option>Nettoyage de Toiture</option>
+          <option>Nettoyage de Terrasse</option>
+          <option>Autre</option>
+        </select>
+        <textarea name="message" placeholder="Décrivez votre besoin en quelques mots…" rows="3" class="devis-input devis-textarea"></textarea>
+        <button type="submit" class="btn btn-primary devis-submit" id="devis-modal-btn">Envoyer ma demande</button>
+        <div class="devis-modal-success" id="devis-modal-success" style="display:none">✅ Demande envoyée ! Nous vous contactons rapidement.</div>
+        <div class="devis-modal-error"   id="devis-modal-error"   style="display:none">❌ Erreur d'envoi. Appelez-nous au 07 67 91 51 32</div>
+      </form>
+    </div>
+  </div>`;
 }
 
 function renderFloatingBtns() {
@@ -230,6 +278,34 @@ function initCommon() {
   document.getElementById('cookie-accept')?.addEventListener('click', () => { localStorage.setItem('cookie-consent','accepted'); document.getElementById('cookie-banner').classList.remove('show'); });
   document.getElementById('cookie-refuse')?.addEventListener('click', () => { localStorage.setItem('cookie-consent','refused'); document.getElementById('cookie-banner').classList.remove('show'); });
 
+  // Floating devis modal
+  const devisOpen    = document.getElementById('float-devis-open');
+  const devisOverlay = document.getElementById('devis-modal-overlay');
+  const devisClose   = document.getElementById('devis-modal-close');
+  const openDevis  = () => { devisOverlay.classList.add('active'); devisOverlay.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; };
+  const closeDevis = () => { devisOverlay.classList.remove('active'); devisOverlay.setAttribute('aria-hidden','true'); document.body.style.overflow=''; };
+  devisOpen?.addEventListener('click', openDevis);
+  devisClose?.addEventListener('click', closeDevis);
+  devisOverlay?.addEventListener('click', e => { if (e.target === devisOverlay) closeDevis(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && devisOverlay?.classList.contains('active')) closeDevis(); });
+
+  document.getElementById('devis-modal-form')?.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn      = document.getElementById('devis-modal-btn');
+    const successEl = document.getElementById('devis-modal-success');
+    const errorEl   = document.getElementById('devis-modal-error');
+    successEl.style.display = 'none'; errorEl.style.display = 'none';
+    btn.disabled = true; btn.textContent = '⏳ Envoi en cours…';
+    const data = new FormData(this);
+    try {
+      const res  = await fetch('https://api.web3forms.com/submit', { method: 'POST', body: data });
+      const json = await res.json();
+      if (json.success) { successEl.style.display = 'block'; this.reset(); }
+      else { errorEl.style.display = 'block'; }
+    } catch { errorEl.style.display = 'block'; }
+    finally { btn.disabled = false; btn.textContent = 'Envoyer ma demande'; }
+  });
+
   // Contact form (if present)
   document.getElementById('contact-form')?.addEventListener('submit', function(e) {
     e.preventDefault();
@@ -261,8 +337,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (el) el.innerHTML = html;
   });
 
-  // Append floating + cookie to body
-  document.body.insertAdjacentHTML('beforeend', renderFloatingBtns() + renderCookieBanner());
+  // Append floating + devis modal + cookie to body
+  document.body.insertAdjacentHTML('beforeend', renderFloatingBtns() + renderDevisModal() + renderCookieBanner());
 
   // Init behaviors
   initCommon();
