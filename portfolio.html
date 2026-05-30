@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portfolio Réalisations – AMS'SERVICES Chambéry | Photos Chantiers</title>
+  <meta name="description" content="Découvrez les réalisations d'AMS'SERVICES à Chambéry : plomberie, électricité, volets roulants, bricolage, décoration. Photos avant/après de nos chantiers en Savoie." />
+  <link rel="icon" type="image/png" href="images/logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* ── Portfolio specific styles ── */
+    .portfolio-hero {
+      background: linear-gradient(135deg, var(--blue) 0%, #1a4fa0 100%);
+      padding: 80px 0 60px;
+      color: var(--white);
+      text-align: center;
+    }
+    .portfolio-hero h1 { font-size: clamp(2rem, 5vw, 3rem); margin-bottom: 1rem; }
+    .portfolio-hero h1 em { color: var(--orange); font-style: normal; }
+    .portfolio-hero p { font-size: 1.15rem; opacity: .9; max-width: 600px; margin: 0 auto 2rem; }
+    .portfolio-stats { display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap; margin-top: 2rem; }
+    .portfolio-stat { text-align: center; }
+    .portfolio-stat .num { font-size: 2rem; font-weight: 800; color: var(--orange); }
+    .portfolio-stat .label { font-size: .85rem; opacity: .8; }
+
+    /* ── Theme nav pills ── */
+    .theme-nav { background: var(--white); border-bottom: 1px solid #E5E7EB; position: sticky; top: 0; z-index: 90; padding: 12px 0; overflow-x: auto; }
+    .theme-nav-inner { display: flex; gap: 8px; padding: 0 24px; min-width: max-content; }
+    .theme-pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 16px; background: var(--gray-l); border-radius: 50px; font-size: .875rem; font-weight: 500; color: var(--dark); text-decoration: none; white-space: nowrap; transition: all .2s; border: 2px solid transparent; }
+    .theme-pill:hover, .theme-pill.active { background: var(--blue); color: var(--white); }
+
+    /* ── Portfolio sections ── */
+    .portfolio-section { padding: 64px 0; }
+    .portfolio-section:nth-child(even) { background: var(--gray-l); }
+    .section-header { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 40px; }
+    .section-icon { font-size: 2.5rem; flex-shrink: 0; }
+    .section-service-link { display: inline-flex; align-items: center; gap: 6px; font-size: .875rem; color: var(--blue); font-weight: 500; text-decoration: none; margin-top: 6px; }
+    .section-service-link:hover { text-decoration: underline; }
+    .section-service-link svg { transition: transform .2s; }
+    .section-service-link:hover svg { transform: translateX(3px); }
+
+    /* ── Photo grids ── */
+    .photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .photo-grid-2 { grid-template-columns: repeat(2, 1fr); }
+    .photo-grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+    .photo-card { position: relative; border-radius: var(--radius); overflow: hidden; background: #000; box-shadow: var(--shadow); cursor: zoom-in; }
+    .photo-card img { width: 100%; height: 260px; object-fit: cover; display: block; transition: transform .4s ease, opacity .3s; }
+    .photo-card:hover img { transform: scale(1.04); opacity: .92; }
+    .photo-card .photo-label { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,.75)); color: #fff; padding: 24px 12px 10px; font-size: .8rem; font-weight: 500; opacity: 0; transition: opacity .3s; }
+    .photo-card:hover .photo-label { opacity: 1; }
+
+    /* ── Featured before/after wide cards ── */
+    .avant-apres-card { border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); margin-bottom: 24px; }
+    .avant-apres-card img { width: 100%; height: auto; max-height: 420px; object-fit: contain; background: #f8f9fa; display: block; }
+    .avant-apres-label { background: var(--blue); color: #fff; text-align: center; padding: 10px 16px; font-weight: 600; font-size: .9rem; }
+
+    /* ── Lightbox ── */
+    .lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.92); z-index: 9999; align-items: center; justify-content: center; padding: 20px; }
+    .lightbox.active { display: flex; }
+    .lightbox img { max-width: 90vw; max-height: 90vh; object-fit: contain; border-radius: 8px; }
+    .lightbox-close { position: absolute; top: 16px; right: 20px; color: #fff; font-size: 2rem; cursor: pointer; background: none; border: none; line-height: 1; }
+    .lightbox-caption { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); color: #fff; font-size: .9rem; background: rgba(0,0,0,.5); padding: 6px 16px; border-radius: 20px; white-space: nowrap; }
+
+    /* ── Responsive ── */
+    @media(max-width:900px) {
+      .photo-grid { grid-template-columns: repeat(2,1fr); }
+      .photo-grid-4 { grid-template-columns: repeat(2,1fr); }
+    }
+    @media(max-width:640px) {
+      .photo-grid, .photo-grid-2, .photo-grid-4 { grid-template-columns: 1fr; }
+      .photo-card img { height: 220px; }
+      .avant-apres-card img { max-height: 260px; }
+      .section-header { flex-direction: column; }
+      .portfolio-stats { gap: 1rem; }
+    }
+  </style>
+</head>
+<body>
+<div id="topbar-slot"></div><div id="navbar-slot"></div><div id="urgence-slot"></div>
+
+<!-- Hero -->
+<section class="portfolio-hero">
+  <div class="container">
+    <nav class="breadcrumb" style="justify-content:center; margin-bottom:1.5rem;">
+      <a href="index.html" style="color:rgba(255,255,255,.8)">Accueil</a><span class="breadcrumb-sep" style="color:rgba(255,255,255,.5)">›</span>
+      <span class="breadcrumb-current" style="color:#fff">Portfolio</span>
+    </nav>
+    <h1>Nos <em>Réalisations</em> en Savoie</h1>
+    <p>Plomberie, électricité, volets roulants, bricolage, décoration… Retrouvez ici nos chantiers réalisés chez des particuliers et professionnels à Chambéry et en Savoie.</p>
+    <div class="portfolio-stats">
+      <div class="portfolio-stat"><div class="num">7</div><div class="label">Types de services</div></div>
+      <div class="portfolio-stat"><div class="num">100%</div><div class="label">Clients satisfaits</div></div>
+      <div class="portfolio-stat"><div class="num">24h/24</div><div class="label">Disponibilité urgences</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- Theme navigation pills -->
+<nav class="theme-nav">
+  <div class="theme-nav-inner">
+    <a href="#toiture" class="theme-pill">🏠 Toiture</a>
+    <a href="#plomberie" class="theme-pill">🔧 Plomberie</a>
+    <a href="#electricite" class="theme-pill">⚡ Électricité</a>
+    <a href="#volets" class="theme-pill">🪟 Volets &amp; Boiseries</a>
+    <a href="#cuisine" class="theme-pill">🍳 Cuisine</a>
+    <a href="#meubles" class="theme-pill">🪑 Meubles &amp; Chambre</a>
+    <a href="#decoration" class="theme-pill">🎨 Décoration</a>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════════════════
+     1. NETTOYAGE DE TOITURE
+══════════════════════════════════════════════════════ -->
+<section class="portfolio-section" id="toiture">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-icon">🏠</div>
+      <div>
+        <span class="tag">Nettoyage de Toiture</span>
+        <h2 class="section-title" style="margin-top:.5rem;">Démoussage &amp; Traitement de Toiture</h2>
+        <p class="section-sub">Nettoyage haute pression, démoussage et traitement anti-végétation. Résultat visible immédiatement, protection longue durée.</p>
+        <a href="nettoyage-toiture.html" class="section-service-link">Voir notre service Nettoyage de Toiture <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+      </div>
+    </div>
+    <div class="avant-apres-card reveal">
+      <img src="images/toiture-avant-apres.png" alt="Avant/après nettoyage toiture Chambéry – démoussage haute pression" loading="lazy" onclick="openLightbox(this, 'Nettoyage de toiture – Avant / Après démoussage haute pression')" />
+      <div class="avant-apres-label">✨ Avant / Après — Démoussage haute pression &amp; traitement anti-mousse</div>
+    </div>
+    <p style="color:var(--gray); font-size:.9rem; text-align:center; margin-top:12px;">🏡 Chantier réalisé en Savoie — Toiture tuiles, nettoyage complet et traitement hydrofuge</p>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     2. PLOMBERIE & SANITAIRE
+══════════════════════════════════════════════════════ -->
+<section class="portfolio-section" id="plomberie">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-icon">🔧</div>
+      <div>
+        <span class="tag">Plomberie &amp; Sanitaire</span>
+        <h2 class="section-title" style="margin-top:.5rem;">Installations &amp; Rénovations Plomberie</h2>
+        <p class="section-sub">Remplacement de chauffe-eau, rénovation de salle de bain, installation de douches et sanitaires, réparation de réseaux.</p>
+        <a href="plomberie.html" class="section-service-link">Voir notre service Plomberie <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+      </div>
+    </div>
+
+    <!-- Featured before/after composites -->
+    <div class="photo-grid photo-grid-2" style="margin-bottom:16px;">
+      <div class="avant-apres-card reveal">
+        <img src="images/plomberie-douche-avant-apres.jpg" alt="Rénovation douche avant après – AMS Services Chambéry" loading="lazy" onclick="openLightbox(this, 'Rénovation Douche — Avant / Après')" style="max-height:320px; object-fit:contain; background:#f8f9fa;" />
+        <div class="avant-apres-label">🚿 Rénovation complète de douche — Avant / Après</div>
+      </div>
+      <div class="avant-apres-card reveal">
+        <img src="images/plomberie-reducteur-avant-apres.jpg" alt="Remplacement réducteur de pression avant après – plomberie immeuble" loading="lazy" onclick="openLightbox(this, 'Remplacement réducteur de pression — Avant / Après')" style="max-height:320px; object-fit:contain; background:#f8f9fa;" />
+        <div class="avant-apres-label">💧 Réducteur de pression immeuble — Avant / Après</div>
+      </div>
+    </div>
+
+    <!-- Individual photos grid -->
+    <div class="photo-grid">
+      <div class="photo-card reveal">
+        <img src="images/plomberie-chauffe-eau.jpg" alt="Installation chauffe-eau Thermor Chambéry" loading="lazy" onclick="openLightbox(this, 'Installation chauffe-eau Thermor 100L')" />
+        <div class="photo-label">🔥 Installation chauffe-eau — Avant / Après</div>
+      </div>
+      <div class="photo-card reveal">
+        <img src="images/plomberie-douche-italienne.jpg" alt="Douche à l'italienne avec carrelage – salle de bain Savoie" loading="lazy" onclick="openLightbox(this, 'Douche à l\'italienne — Pose carrelage et plomberie')" />
+        <div class="photo-label">🚿 Douche à l'italienne — Pose carrelage &amp; plomberie</div>
+      </div>
+      <div class="photo-card reveal">
+        <img src="images/plomberie-douche-italienne-2.jpg" alt="Douche italienne vue de dessus – carrelage marron" loading="lazy" onclick="openLightbox(this, 'Douche à l\'italienne — Vue de dessus')" />
+        <div class="photo-label">🚿 Douche à l'italienne — Vue dessus</div>
+      </div>
+      <div class="photo-card reveal">
+        <img src="images/plomberie-wc.jpg" alt="Installation WC suspendu salle de bain carrelée" loading="lazy" onclick="openLightbox(this, 'Installation WC suspendu avec carrelage')" />
+        <div class="photo-label">🚽 Installation WC suspendu</div>
+      </div>
+      <div class="photo-card reveal">
+        <img src="images/plomberie-baignoire.jpg" alt="Pose baignoire dans salle de bain carrelée" loading="lazy" onclick="openLightbox(this, 'Pose de baignoire — Salle de bain carrelée')" />
+        <div class="photo-label">🛁 Pose de baignoire</div>
+      </div>
+      <div class="photo-card reveal">
+        <img src="images/plomberie-reseau-avant.jpg" alt="Réseau de plomberie avant rénovation – anciennes canalisations" loading="lazy" onclick="openLightbox(this, 'Réseau plomberie vétuste — Avant rénovation')" />
+        <div class="photo-label">🔧 Réseau vétuste — Avant rénovation</div>
+      </div>
+      <div class="photo-card reveal">
+        <img src="images/plomberie-chaudiere-apres.jpg" alt="Nouveaux raccordements cuivre chaudière après rénovation" loading="lazy" onclick="openLightbox(this, 'Raccordements chaudière — Après rénovation cuivre')" />
+        <div class="photo-label">♨️ Raccordements chaudière — Après</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     3. ÉLECTRICITÉ
+══════════════════════════════════════════════════════ -->
+<section class="portfolio-section" id="electricite">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-icon">⚡</div>
+      <div>
+        <span class="tag">Électricité</span>
+        <h2 class="section-title" style="margin-top:.5rem;">Tableaux Électriques &amp; Installations</h2>
+        <p class="section-sub">Remplacement de tableaux vétustes, mise aux normes NFC 15-100, installation de prises et câblage. Travail propre et sécurisé.</p>
+        <a href="electricite.html" class="section-service-link">Voir notre service Électricité <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+      </div>
+    </div>
+    <div class="photo-grid photo-grid-2" style="margin-bottom:16px;">
+      <div class="photo-card reveal" style="cursor:zoom-in;">
+        <img src="images/electricite-tableau-1.jpg" alt="Tableau électrique Hager organisé avec étiquettes – mise aux normes" loading="lazy" onclick="openLightbox(this, 'Tableau électrique Hager — Mise aux normes NFC 15-100')" style="height:320px;" />
+        <div class="photo-label">📋 Tableau électrique Hager — Mise aux normes complète</div>
+      </div>
+      <div class="photo-card reveal">
+        <img src="images/electricite-tableau-2.jpg" alt="Section chauffage tableau électrique – disjoncteurs Hager" loading="lazy" onclick="openLightbox(this, 'Tableau électrique — Section chauffage et circuits dédiés')" style="height:320px;" />
+        <div class="photo-label">🌡️ Section chauffage — Circuits dédiés</div>
+      </div>
+    </div>
+    <div class="photo-grid photo-grid-2">
+      <div class="photo-card reveal">
+        <img src="images/electricite-tableau-3.jpg" alt="Tableau Merlin Gerin Legrand – câblage électrique professionnel" loading="lazy" onclick="openLightbox(this, 'Tableau Merlin Gerin Legrand — Câblage professionnel')" />
+        <div class="photo-label">⚡ Tableau Merlin Gerin — Câblage propre</div>
+      </div>
+      <div class="photo-card reveal">
+        <img src="images/electricite-boite.jpg" alt="Pose boîte électrique encastrée dans plaque de plâtre" loading="lazy" onclick="openLightbox(this, 'Pose boîte électrique encastrée — Plaque de plâtre')" />
+        <div class="photo-label">🔌 Pose boîte électrique encastrée</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     4. VOLETS ROULANTS & BOISERIES
+══════════════════════════════════════════════════════ -->
+<section class="portfolio-section" id="volets">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-icon">🪟</div>
+      <div>
+        <span class="tag">Volets Roulants &amp; Boiseries</span>
+        <h2 class="section-title" style="margin-top:.5rem;">Réparation, Rénovation &amp; Installation</h2>
+        <p class="section-sub">Réparation de volets bloqués, remplacement de lames, motorisation, et rénovation de stores et boiseries bois.</p>
+        <a href="volets-roulants.html" class="section-service-link">Voir notre service Volets Roulants <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+      </div>
+    </div>
+    <div class="avant-apres-card reveal" style="margin-bottom:24px;">
+      <img src="images/volets-boiseries-avant-apres.png" alt="Rénovation store bois avant après – nettoyage et traitement AMS Services" loading="lazy" onclick="openLightbox(this, 'Rénovation boiseries bois — Avant / Après')" style="max-height:500px; object-fit:contain; background:#f8f9fa;" />
+      <div class="avant-apres-label">🪵 Rénovation stores &amp; portes bois — Avant / Après nettoyage &amp; traitement</div>
+    </div>
+    <div class="photo-grid">
+      <div class="photo-card reveal">
+        <img src="images/volets-roulants-ferme.jpg" alt="Volet roulant bois lames orangées fermé – installation Chambéry" loading="lazy" onclick="openLightbox(this, 'Volet roulant à lames bois — Tablier fermé')" />
+        <div class="photo-label">🪟 Volet roulant lames bois — Fermé</div>
+      </div>
+      <div class="photo-card reveal">
+        <img src="images/volets-roulants-ouvert.jpg" alt="Volet roulant en cours d'ouverture – fenêtre visible" loading="lazy" onclick="openLightbox(this, 'Volet roulant lames bois — En ouverture')" />
+        <div class="photo-label">🪟 Volet roulant lames bois — En ouverture</div>
+      </div>
+      <div class="photo-card reveal">
+        <img src="images/volets-pro-serrure.jpg" alt="Serrure volet roulant commercial – remplacement poignée" loading="lazy" onclick="openLightbox(this, 'Serrure volet roulant commercial — Remplacement')" />
+        <div class="photo-label">🔐 Serrure volet roulant professionnel</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     5. MONTAGE DE CUISINE
+══════════════════════════════════════════════════════ -->
+<section class="portfolio-section" id="cuisine">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-icon">🍳</div>
+      <div>
+        <span class="tag">Bricolage — Montage Cuisine</span>
+        <h2 class="section-title" style="margin-top:.5rem;">Montage &amp; Installation de Cuisine</h2>
+        <p class="section-sub">Montage complet de cuisine équipée : meubles bas, meubles hauts, plan de travail, électroménager encastré. Chantier propre du début à la fin.</p>
+        <a href="bricolage.html" class="section-service-link">Voir notre service Bricolage <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+      </div>
+    </div>
+    <div class="photo-grid photo-grid-4 reveal">
+      <div class="photo-card">
+        <img src="images/bricolage-cuisine-1.jpg" alt="Montage cuisine en cours – meubles bois et plan de travail" loading="lazy" onclick="openLightbox(this, 'Montage cuisine — Début d\'installation')" />
+        <div class="photo-label">🍳 Début d'installation — Vue frontale</div>
+      </div>
+      <div class="photo-card">
+        <img src="images/bricolage-cuisine-2.jpg" alt="Vue dessus cuisine en cours de montage" loading="lazy" onclick="openLightbox(this, 'Montage cuisine — Vue de dessus')" />
+        <div class="photo-label">🍳 Vue de dessus — En cours</div>
+      </div>
+      <div class="photo-card">
+        <img src="images/bricolage-cuisine-3.jpg" alt="Cuisine presque finie avec plan de travail stratifié" loading="lazy" onclick="openLightbox(this, 'Montage cuisine — Presque terminée')" />
+        <div class="photo-label">🍳 Cuisine — Finition en cours</div>
+      </div>
+      <div class="photo-card">
+        <img src="images/bricolage-cuisine-4.jpg" alt="Cuisine terminée avec portes noires et bois – résultat final" loading="lazy" onclick="openLightbox(this, 'Montage cuisine — Résultat final')" />
+        <div class="photo-label">🍳 Cuisine terminée — Résultat final</div>
+      </div>
+    </div>
+    <p style="color:var(--gray); font-size:.9rem; text-align:center; margin-top:16px;">🏠 Cuisine complète montée en une journée — Meubles noirs laqués &amp; bois naturel, plan de travail stratifié, électroménager encastré</p>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     6. MONTAGE MEUBLES & CHAMBRE
+══════════════════════════════════════════════════════ -->
+<section class="portfolio-section" id="meubles">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-icon">🪑</div>
+      <div>
+        <span class="tag">Bricolage — Meubles &amp; Chambre</span>
+        <h2 class="section-title" style="margin-top:.5rem;">Montage Meubles &amp; Aménagement Chambre</h2>
+        <p class="section-sub">Montage d'armoires, lits, dressings et mobilier de chambre. Nous venons avec le matériel, vous profitez du résultat.</p>
+        <a href="bricolage.html" class="section-service-link">Voir notre service Bricolage <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+      </div>
+    </div>
+    <div class="photo-grid photo-grid-4">
+      <div class="photo-card reveal">
+        <img src="images/bricolage-chambre-2.jpg" alt="Chambre aménagée avec lambris bois et placard coulissant" loading="lazy" onclick="openLightbox(this, 'Chambre — Lambris bois et placard coulissant')" />
+        <div class="photo-label">🛏️ Chambre — Lambris &amp; placard coulissant</div>
+      </div>
+      <div class="photo-card reveal">
+        <img src="images/bricolage-lit.jpg" alt="Montage lit coffre gris avec matelas dans chambre" loading="lazy" onclick="openLightbox(this, 'Montage lit coffre — Chambre à coucher')" />
+        <div class="photo-label">🛏️ Lit coffre — Monté &amp; installé</div>
+      </div>
+      <div class="photo-card reveal">
+        <img src="images/bricolage-armoire.jpg" alt="Grande armoire avec portes coulissantes montée dans chambre" loading="lazy" onclick="openLightbox(this, 'Grande armoire coulissante — Montage professionnel')" />
+        <div class="photo-label">🗄️ Grande armoire coulissante</div>
+      </div>
+      <div class="photo-card reveal">
+        <img src="images/bricolage-chambre.jpg" alt="Chambre aménagée avec lit sommier et parquet stratifié" loading="lazy" onclick="openLightbox(this, 'Chambre aménagée — Lit, matelas et parquet')" />
+        <div class="photo-label">🛏️ Chambre complète aménagée</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     7. DÉCORATION & RÉNOVATION
+══════════════════════════════════════════════════════ -->
+<section class="portfolio-section" id="decoration">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-icon">🎨</div>
+      <div>
+        <span class="tag">Décoration &amp; Rénovation</span>
+        <h2 class="section-title" style="margin-top:.5rem;">Papier Peint, Revêtements &amp; Rénovation</h2>
+        <p class="section-sub">Pose de papier peint, fresques murales, revêtements de sol, revêtements muraux et rénovation complète d'espaces intérieurs.</p>
+        <a href="bricolage.html" class="section-service-link">Voir notre service Bricolage <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+      </div>
+    </div>
+
+    <!-- Featured jungle mural before/after -->
+    <div class="photo-grid photo-grid-2" style="margin-bottom:24px;">
+      <div class="photo-card reveal" style="cursor:zoom-in;">
+        <img src="images/deco-fresque-avant.jpg" alt="Pose fresque murale tropicale en cours – échelle visible" loading="lazy" onclick="openLightbox(this, 'Fresque tropicale — En cours de pose')" style="height:360px;" />
+        <div class="photo-label">🪜 Fresque tropicale — Pendant la pose</div>
+      </div>
+      <div class="photo-card reveal">
+        <img src="images/deco-fresque-apres.jpg" alt="Fresque murale jungle tropicale terminée – résultat final magnifique" loading="lazy" onclick="openLightbox(this, 'Fresque tropicale — Résultat final')" style="height:360px;" />
+        <div class="photo-label">🌴 Fresque tropicale — Résultat final</div>
+      </div>
+    </div>
+
+    <div class="photo-grid">
+      <div class="photo-card reveal">
+        <img src="images/deco-papier-peint.jpg" alt="Papier peint géométrique couleur miel posé sur mur" loading="lazy" onclick="openLightbox(this, 'Pose papier peint géométrique')" />
+        <div class="photo-label">🎨 Papier peint géométrique</div>
+      </div>
+      <div class="photo-card reveal">
+        <img src="images/deco-pierre.jpg" alt="Revêtement mural pierre naturelle – parement décoratif" loading="lazy" onclick="openLightbox(this, 'Revêtement pierre naturelle — Parement mural')" />
+        <div class="photo-label">🪨 Revêtement pierre naturelle</div>
+      </div>
+      <div class="photo-card reveal">
+        <img src="images/bricolage-fenetre.jpg" alt="Pose fenêtre coulissante aluminium noir dans appartement" loading="lazy" onclick="openLightbox(this, 'Pose fenêtre coulissante aluminium — Noir anthracite')" />
+        <div class="photo-label">🪟 Fenêtre coulissante aluminium noir</div>
+      </div>
+      <div class="photo-card reveal">
+        <img src="images/renovation-plancher-1.jpg" alt="Chambre rénovée avec nouveau plancher stratifié – vue depuis couloir" loading="lazy" onclick="openLightbox(this, 'Rénovation chambre — Nouveau plancher stratifié')" />
+        <div class="photo-label">🏠 Nouveau plancher stratifié — Vue couloir</div>
+      </div>
+      <div class="photo-card reveal">
+        <img src="images/renovation-plancher-2.jpg" alt="Plancher stratifié posé dans chambre – aspiration Karcher" loading="lazy" onclick="openLightbox(this, 'Plancher stratifié posé — Finition et nettoyage')" />
+        <div class="photo-label">✨ Plancher terminé — Finition propre</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+  <div class="container">
+    <h2>Votre projet nous intéresse !</h2>
+    <p>Demandez un devis gratuit pour votre chantier à Chambéry et en Savoie. Intervention rapide et soignée.</p>
+    <div class="cta-btns">
+      <a href="tel:0767915132" class="btn btn-white"><svg width="18" height="18" fill="currentColor" viewBox="0 0 20 20"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/></svg>07 67 91 51 32</a>
+      <a href="index.html#contact" class="btn btn-outline">Demander un devis</a>
+    </div>
+  </div>
+</section>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <img id="lightbox-img" src="" alt="" onclick="event.stopPropagation()" />
+  <div class="lightbox-caption" id="lightbox-caption"></div>
+</div>
+
+<div id="footer-slot"></div>
+<script src="components.js"></script>
+<script>
+  // Lightbox
+  function openLightbox(img, caption) {
+    const lb = document.getElementById('lightbox');
+    document.getElementById('lightbox-img').src = img.src;
+    document.getElementById('lightbox-img').alt = img.alt;
+    document.getElementById('lightbox-caption').textContent = caption || img.alt;
+    lb.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('active');
+    document.body.style.overflow = '';
+  }
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+
+  // Highlight active pill on scroll
+  const sections = document.querySelectorAll('.portfolio-section');
+  const pills = document.querySelectorAll('.theme-pill');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        pills.forEach(p => {
+          p.classList.toggle('active', p.getAttribute('href') === '#' + id);
+        });
+      }
+    });
+  }, { threshold: 0.3 });
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>

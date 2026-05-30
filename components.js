@@ -53,7 +53,7 @@ function renderNavbar() {
   <nav class="navbar">
     <div class="container nav-inner">
       <a href="index.html" class="logo" aria-label="AMS Services accueil">
-        <div class="logo-icon">A</div>
+        <img src="images/logo.png" alt="Logo AMS Services" class="logo-img" />
         <div>
           <div class="logo-text">AMS<span>'</span>SERVICES</div>
           <div class="logo-sub">Dépannage &amp; Réparation</div>
@@ -66,6 +66,7 @@ function renderNavbar() {
           <ul class="dropdown-menu">${dropItems}</ul>
         </li>
         <li><a href="index.html#tarifs">Tarifs</a></li>
+        <li><a href="portfolio.html">Portfolio</a></li>
         <li><a href="index.html#about">À Propos</a></li>
         <li><a href="index.html#contact">Contact</a></li>
       </ul>
@@ -97,7 +98,7 @@ function renderFooter() {
       <div class="footer-grid">
         <div class="footer-brand">
           <div class="logo">
-            <div class="logo-icon">A</div>
+            <img src="images/logo.png" alt="Logo AMS Services" class="logo-img" />
             <div>
               <div class="logo-text">AMS<span style="color:var(--orange)">'</span>SERVICES</div>
               <div class="logo-sub" style="color:#6B7280">Dépannage &amp; Réparation</div>
@@ -120,6 +121,7 @@ function renderFooter() {
             <li><a href="index.html">Accueil</a></li>
             <li><a href="index.html#services">Nos Services</a></li>
             <li><a href="index.html#tarifs">Tarifs</a></li>
+            <li><a href="portfolio.html">Portfolio</a></li>
             <li><a href="index.html#about">À Propos</a></li>
             <li><a href="index.html#contact">Contact</a></li>
           </ul>
@@ -134,6 +136,18 @@ function renderFooter() {
             <li style="color:#6B7280;font-size:.82rem;">24h/24 — 7j/7</li>
           </ul>
         </div>
+      </div>
+      <!-- Zone d'intervention SEO -->
+      <div class="footer-zones">
+        <div class="footer-zones-title">📍 Zone d'intervention</div>
+        <div class="footer-zones-list">
+          <span>Chambéry</span><span>Aix-les-Bains</span><span>La Motte-Servolex</span>
+          <span>Cognin</span><span>Barberaz</span><span>Bassens</span>
+          <span>La Ravoire</span><span>Saint-Alban-Leysse</span><span>Challes-les-Eaux</span>
+          <span>Sonnaz</span><span>Voglans</span><span>Méry</span>
+          <span>Savoie (73)</span><span>Haute-Savoie (74)</span>
+        </div>
+        <p class="footer-zones-note">Disponible dans toute la région Auvergne-Rhône-Alpes — contactez-nous pour vérifier votre commune.</p>
       </div>
       <div class="footer-bottom">
         <span>© 2026 AMS'SERVICES — Tous droits réservés</span>
