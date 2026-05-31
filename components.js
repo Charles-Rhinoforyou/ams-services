@@ -299,7 +299,7 @@ function initCommon() {
     const data = {};
     formData.forEach((v, k) => { data[k] = v; });
     try {
-      const res  = await fetch('https://formsubmit.co/ajax/ctdvda@gmail.com', {
+      const res  = await fetch('https://formsubmit.co/ajax/ec8e52df23c57ad2a63d7bffc8be65fb', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body:    JSON.stringify(data)
