@@ -72,7 +72,7 @@ ul   { list-style: none; }
 .dropdown-menu {
   display: none; position: absolute; top: calc(100% + 8px); left: 0;
   background: var(--white); border-radius: var(--radius);
-  box-shadow: 0 8px 32px rgba(0,0,0,.14); min-width: 230px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.14); min-width: 262px;
   padding: 8px; z-index: 200; border: 1px solid #E5E7EB;
   animation: dropIn .2s ease;
 }
@@ -83,6 +83,9 @@ ul   { list-style: none; }
 .dropdown-item:hover { background: rgba(249,194,0,.12); color: var(--orange); }
 .dropdown-item-icon { font-size: 1.1rem; width: 28px; text-align: center; }
 .dropdown-divider { height: 1px; background: #F3F4F6; margin: 6px 0; }
+.dropdown-item-urgence { color: #B91C1C; font-weight: 700; background: rgba(185,28,28,.06); margin-bottom: 4px; border-bottom: 1px solid #F3F4F6; padding-bottom: 12px; }
+.dropdown-item-urgence:hover { background: rgba(185,28,28,.14); color: #B91C1C; }
+.dropdown-badge { margin-left: auto; background: #B91C1C; color: #fff; font-size: .64rem; font-weight: 700; padding: 2px 7px; border-radius: 20px; letter-spacing: .3px; }
 
 .nav-cta { margin-left: 8px; padding: 10px 20px; font-size: .85rem; }
 .hamburger { display: none; background: none; border: none; cursor: pointer; padding: 6px; }
@@ -122,6 +125,12 @@ ul   { list-style: none; }
 .service-card { background: var(--white); border-radius: var(--radius); padding: 32px; box-shadow: var(--shadow); transition: var(--trans); border: 2px solid transparent; cursor: default; }
 .service-card:hover { border-color: var(--orange); transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,.12); }
 .service-icon { width: 60px; height: 60px; border-radius: 14px; background: linear-gradient(135deg, var(--blue), var(--blue-l)); display: flex; align-items: center; justify-content: center; margin-bottom: 20px; font-size: 1.6rem; }
+.service-card-urgence { border-color: #FCA5A5; background: linear-gradient(160deg, #FEF2F2, var(--white)); }
+.service-card-urgence:hover { border-color: #B91C1C; box-shadow: 0 12px 32px rgba(185,28,28,.18); }
+.service-card-urgence .service-icon { background: linear-gradient(135deg, #B91C1C, #7F1D1D); }
+.service-card-urgence h3 { color: #B91C1C; }
+.service-card-urgence .service-card-link { color: #B91C1C; }
+.service-card-urgence .service-tag { background: rgba(185,28,28,.1); color: #B91C1C; }
 .service-card h3 { font-size: 1.15rem; font-weight: 700; color: var(--blue); margin-bottom: 10px; }
 .service-card p { color: var(--gray); font-size: .92rem; line-height: 1.65; }
 .service-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 16px; }

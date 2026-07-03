@@ -46,7 +46,9 @@ function renderTopbar() {
 }
 
 function renderNavbar() {
-  const dropItems = AMS.services.map(s =>
+  const urgenceItem =
+    `<li><a href="urgence.html" class="dropdown-item dropdown-item-urgence"><span class="dropdown-item-icon">🚨</span>Intervention d'urgence <span class="dropdown-badge">24h/24</span></a></li>`;
+  const dropItems = urgenceItem + AMS.services.map(s =>
     `<li><a href="${s.slug}" class="dropdown-item"><span class="dropdown-item-icon">${s.icon}</span>${s.name}</a></li>`
   ).join('');
 
@@ -89,9 +91,11 @@ function renderUrgence() {
 }
 
 function renderFooter() {
-  const serviceLinks = AMS.services.map(s =>
-    `<li><a href="${s.slug}">${s.icon} ${s.name}</a></li>`
-  ).join('');
+  const serviceLinks =
+    `<li><a href="urgence.html" style="color:#EF4444;font-weight:700;">🚨 Intervention d'urgence 24h/24</a></li>` +
+    AMS.services.map(s =>
+      `<li><a href="${s.slug}">${s.icon} ${s.name}</a></li>`
+    ).join('');
 
   return `
   <footer class="footer">
@@ -190,6 +194,7 @@ function renderDevisModal() {
         <input type="email" name="email"    placeholder="Email (optionnel)"          class="devis-input" />
         <select name="service" class="devis-input" required>
           <option value="" disabled selected>Type de service *</option>
+          <option>Intervention d'urgence</option>
           <option>Plomberie</option>
           <option>Électricité</option>
           <option>Serrurerie</option>
