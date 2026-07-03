@@ -28,5 +28,6 @@ jobs:
             **/.git*
             **/.git*/**
             .github/**
+            .claude/**
             **/node_modules/**
             README.md

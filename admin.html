@@ -171,12 +171,16 @@
     <h1>Administration Portfolio</h1>
     <p class="sub">AMS'SERVICES — Accès réservé</p>
     <div class="lfield">
+      <label>Identifiant</label>
+      <input type="text" id="login-user" placeholder="Votre identifiant" autocomplete="username" autofocus />
+    </div>
+    <div class="lfield">
       <label>Mot de passe</label>
-      <input type="password" id="login-pw" placeholder="••••••••" autofocus />
+      <input type="password" id="login-pw" placeholder="••••••••" autocomplete="current-password" />
     </div>
     <button class="lbtn" id="login-btn">Accéder</button>
-    <p class="lerr" id="login-err">Mot de passe incorrect</p>
-    <p class="lhint">Mot de passe par défaut&nbsp;: <code>ams2026</code></p>
+    <p class="lerr" id="login-err">Identifiant ou mot de passe incorrect</p>
+    <p class="lhint">Par défaut&nbsp;: identifiant <code>admin</code> — mot de passe <code>ams2026</code><br><span style="color:#B91C1C;">Pensez à les modifier après connexion (bouton 🔑).</span></p>
   </div>
 </div>
 
@@ -189,6 +193,7 @@
       <a href="portfolio.html" target="_blank" class="abtn abtn-ghost">👁 Aperçu</a>
       <button class="abtn abtn-orange" id="btn-save">💾 Enregistrer</button>
       <button class="abtn abtn-green" id="btn-export">⬇ Exporter .js</button>
+      <button class="abtn abtn-ghost" id="btn-creds" title="Modifier l'identifiant et le mot de passe">🔑 Identifiants</button>
       <button class="abtn abtn-ghost" id="btn-logout" style="opacity:.65;">Quitter</button>
     </div>
   </header>
@@ -230,6 +235,30 @@
   </div>
 </div>
 
+<!-- ════════════════════ MODAL IDENTIFIANTS ════════════════════ -->
+<div class="overlay" id="creds-overlay">
+  <div class="mbox" style="max-width:440px;">
+    <div class="mhdr">
+      <h2>🔑 Modifier les identifiants</h2>
+      <button class="mclose" onclick="closeCredsModal()">✕</button>
+    </div>
+    <div class="mbody">
+      <div class="afield"><label>Identifiant actuel</label><input type="text" id="cr-cur-user" autocomplete="off" /></div>
+      <div class="afield"><label>Mot de passe actuel</label><input type="password" id="cr-cur-pw" autocomplete="off" /></div>
+      <hr class="divider" />
+      <div class="afield"><label>Nouvel identifiant</label><input type="text" id="cr-new-user" autocomplete="off" /></div>
+      <div class="afield"><label>Nouveau mot de passe</label><input type="password" id="cr-new-pw" autocomplete="off" /></div>
+      <div class="afield"><label>Confirmer le nouveau mot de passe</label><input type="password" id="cr-new-pw2" autocomplete="off" /></div>
+      <p id="cr-err" style="color:#DC2626;font-size:.82rem;display:none;margin-top:2px;"></p>
+      <p style="font-size:.74rem;color:var(--gray);margin-top:2px;">Les identifiants sont enregistrés dans ce navigateur.</p>
+    </div>
+    <div class="mfoot">
+      <button class="abtn abtn-outline abtn-sm" onclick="closeCredsModal()">Annuler</button>
+      <button class="abtn abtn-primary abtn-sm" id="cr-save">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
 <!-- Toast -->
 <div class="adm-toast" id="toast"></div>
 
@@ -237,9 +266,12 @@
 <script>
 /* ═══════════════════════════════════════════════════════ */
 
+const LS_USER = 'ams_admin_user';
 const LS_PW   = 'ams_admin_pw';
+const SS_AUTH = 'ams_admin_session';
 const LS_DATA = 'ams_portfolio_data';
-const DEF_PW  = btoa('ams2026');
+const DEF_USER = btoa('admin');
+const DEF_PW   = btoa('ams2026');
 
 let state  = null;
 let curSec = -1;
@@ -247,15 +279,18 @@ let editIdx = -1;
 
 /* ── Auth ── */
 document.getElementById('login-btn').onclick = doLogin;
-document.getElementById('login-pw').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+['login-user', 'login-pw'].forEach(id =>
+  document.getElementById(id).addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); })
+);
 
 function doLogin() {
-  const pw = document.getElementById('login-pw').value;
-  const stored = localStorage.getItem(LS_PW) || DEF_PW;
-  if (btoa(pw) === stored) {
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('admin-ui').style.display = 'flex';
-    initAdmin();
+  const user = document.getElementById('login-user').value.trim();
+  const pw   = document.getElementById('login-pw').value;
+  const storedUser = localStorage.getItem(LS_USER) || DEF_USER;
+  const storedPw   = localStorage.getItem(LS_PW)   || DEF_PW;
+  if (btoa(user) === storedUser && btoa(pw) === storedPw) {
+    sessionStorage.setItem(SS_AUTH, '1');
+    showAdmin();
   } else {
     const e = document.getElementById('login-err');
     e.style.display = 'block';
@@ -264,12 +299,55 @@ function doLogin() {
   }
 }
 
+function showAdmin() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('admin-ui').style.display = 'flex';
+  document.getElementById('login-err').style.display = 'none';
+  initAdmin();
+}
+
 document.getElementById('btn-logout').onclick = () => {
+  sessionStorage.removeItem(SS_AUTH);
   document.getElementById('admin-ui').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('login-pw').value = '';
+  document.getElementById('login-user').focus();
   curSec = -1;
 };
+
+/* ── Modification des identifiants ── */
+document.getElementById('btn-creds').onclick = openCredsModal;
+
+function openCredsModal() {
+  ['cr-cur-user','cr-cur-pw','cr-new-user','cr-new-pw','cr-new-pw2'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('cr-err').style.display = 'none';
+  document.getElementById('creds-overlay').classList.add('active');
+}
+function closeCredsModal() { document.getElementById('creds-overlay').classList.remove('active'); }
+
+document.getElementById('cr-save').onclick = () => {
+  const err = document.getElementById('cr-err');
+  const curUser = document.getElementById('cr-cur-user').value.trim();
+  const curPw   = document.getElementById('cr-cur-pw').value;
+  const newUser = document.getElementById('cr-new-user').value.trim();
+  const newPw   = document.getElementById('cr-new-pw').value;
+  const newPw2  = document.getElementById('cr-new-pw2').value;
+  const storedUser = localStorage.getItem(LS_USER) || DEF_USER;
+  const storedPw   = localStorage.getItem(LS_PW)   || DEF_PW;
+  err.style.display = 'none';
+  const fail = m => { err.textContent = m; err.style.display = 'block'; };
+  if (btoa(curUser) !== storedUser || btoa(curPw) !== storedPw) return fail('Identifiant ou mot de passe actuel incorrect.');
+  if (newUser.length < 3) return fail('Le nouvel identifiant doit faire au moins 3 caractères.');
+  if (newPw.length < 4)   return fail('Le nouveau mot de passe doit faire au moins 4 caractères.');
+  if (newPw !== newPw2)   return fail('Les deux mots de passe ne correspondent pas.');
+  localStorage.setItem(LS_USER, btoa(newUser));
+  localStorage.setItem(LS_PW, btoa(newPw));
+  closeCredsModal();
+  toast('Identifiants mis à jour ✓', 'ok');
+};
+
+/* Reprise de session si déjà connecté dans cet onglet */
+if (sessionStorage.getItem(SS_AUTH) === '1') showAdmin();
 
 /* ── Init ── */
 function initAdmin() {
@@ -619,9 +697,12 @@ function closeFicheModal() {
 }
 
 /* ── Keyboard / click-out ── */
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeFicheModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeFicheModal(); closeCredsModal(); } });
 document.getElementById('fiche-overlay').addEventListener('click', e => {
   if (e.target === document.getElementById('fiche-overlay')) closeFicheModal();
+});
+document.getElementById('creds-overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('creds-overlay')) closeCredsModal();
 });
 
 /* ── Helpers ── */
