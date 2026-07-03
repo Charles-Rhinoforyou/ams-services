@@ -77,6 +77,9 @@ ul   { list-style: none; }
   animation: dropIn .2s ease;
 }
 @keyframes dropIn { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:none; } }
+/* Pont invisible : comble l'espace de 8px entre le bouton et le menu
+   pour que le survol reste continu (sinon le menu se ferme dans le vide). */
+.dropdown-menu::before { content: ''; position: absolute; top: -10px; left: 0; right: 0; height: 10px; }
 .nav-dropdown:hover .dropdown-menu,
 .nav-dropdown:focus-within .dropdown-menu { display: block; }
 .dropdown-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 8px; font-size: .88rem; font-weight: 500; color: var(--dark); transition: var(--trans); }
