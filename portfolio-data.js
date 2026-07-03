@@ -1,6 +1,6 @@
 // ============================================================
 //  portfolio-data.js — Données du portfolio AMS'SERVICES
-//  Éditer via admin.html  →  Exporter  →  remplacer ce fichier  →  git push
+//  Éditer via la page de gestion  →  Exporter  →  remplacer ce fichier  →  git push
 // ============================================================
 const PORTFOLIO_DATA = {
   version: "1.0",

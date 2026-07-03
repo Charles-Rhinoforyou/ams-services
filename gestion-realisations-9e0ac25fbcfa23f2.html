@@ -2,7 +2,9 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Administration — Portfolio AMS'SERVICES</title>
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex" />
+  <meta name="googlebot" content="noindex, nofollow" />
+  <title>Gestion — AMS'SERVICES</title>
   <link rel="icon" type="image/png" href="images/logo.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -180,7 +182,7 @@
     </div>
     <button class="lbtn" id="login-btn">Accéder</button>
     <p class="lerr" id="login-err">Identifiant ou mot de passe incorrect</p>
-    <p class="lhint">Par défaut&nbsp;: identifiant <code>admin</code> — mot de passe <code>ams2026</code><br><span style="color:#B91C1C;">Pensez à les modifier après connexion (bouton 🔑).</span></p>
+    <p class="lhint">Accès réservé à l'administration du site.</p>
   </div>
 </div>
 
@@ -270,12 +272,19 @@ const LS_USER = 'ams_admin_user';
 const LS_PW   = 'ams_admin_pw';
 const SS_AUTH = 'ams_admin_session';
 const LS_DATA = 'ams_portfolio_data';
-const DEF_USER = btoa('admin');
-const DEF_PW   = btoa('ams2026');
+/* Identifiants par défaut stockés en SHA-256 (jamais en clair dans le code). */
+const DEF_USER = 'b6d190ea313c169212a26eefe0dedde525e93053d96842767fb999a85c08bd25';
+const DEF_PW   = 'ed785f8fe8f0ba0db1e832a9b7237d6e3739ad452f9f9fc10ee1c1f162519077';
 
 let state  = null;
 let curSec = -1;
 let editIdx = -1;
+
+/* Hash SHA-256 → hex (nécessite HTTPS ou localhost) */
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
 
 /* ── Auth ── */
 document.getElementById('login-btn').onclick = doLogin;
@@ -283,12 +292,12 @@ document.getElementById('login-btn').onclick = doLogin;
   document.getElementById(id).addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); })
 );
 
-function doLogin() {
+async function doLogin() {
   const user = document.getElementById('login-user').value.trim();
   const pw   = document.getElementById('login-pw').value;
   const storedUser = localStorage.getItem(LS_USER) || DEF_USER;
   const storedPw   = localStorage.getItem(LS_PW)   || DEF_PW;
-  if (btoa(user) === storedUser && btoa(pw) === storedPw) {
+  if (await sha256(user) === storedUser && await sha256(pw) === storedPw) {
     sessionStorage.setItem(SS_AUTH, '1');
     showAdmin();
   } else {
@@ -325,7 +334,7 @@ function openCredsModal() {
 }
 function closeCredsModal() { document.getElementById('creds-overlay').classList.remove('active'); }
 
-document.getElementById('cr-save').onclick = () => {
+document.getElementById('cr-save').onclick = async () => {
   const err = document.getElementById('cr-err');
   const curUser = document.getElementById('cr-cur-user').value.trim();
   const curPw   = document.getElementById('cr-cur-pw').value;
@@ -336,12 +345,12 @@ document.getElementById('cr-save').onclick = () => {
   const storedPw   = localStorage.getItem(LS_PW)   || DEF_PW;
   err.style.display = 'none';
   const fail = m => { err.textContent = m; err.style.display = 'block'; };
-  if (btoa(curUser) !== storedUser || btoa(curPw) !== storedPw) return fail('Identifiant ou mot de passe actuel incorrect.');
+  if (await sha256(curUser) !== storedUser || await sha256(curPw) !== storedPw) return fail('Identifiant ou mot de passe actuel incorrect.');
   if (newUser.length < 3) return fail('Le nouvel identifiant doit faire au moins 3 caractères.');
   if (newPw.length < 4)   return fail('Le nouveau mot de passe doit faire au moins 4 caractères.');
   if (newPw !== newPw2)   return fail('Les deux mots de passe ne correspondent pas.');
-  localStorage.setItem(LS_USER, btoa(newUser));
-  localStorage.setItem(LS_PW, btoa(newPw));
+  localStorage.setItem(LS_USER, await sha256(newUser));
+  localStorage.setItem(LS_PW, await sha256(newPw));
   closeCredsModal();
   toast('Identifiants mis à jour ✓', 'ok');
 };
@@ -378,7 +387,7 @@ document.getElementById('btn-save').onclick = () => {
 document.getElementById('btn-export').onclick = () => {
   const s = JSON.parse(JSON.stringify(state));
   s.lastUpdated = new Date().toISOString().slice(0,10);
-  const content = `// ============================================================\n//  portfolio-data.js — Données du portfolio AMS'SERVICES\n//  Éditer via admin.html  →  Exporter  →  remplacer ce fichier  →  git push\n// ============================================================\nconst PORTFOLIO_DATA = ${JSON.stringify(s, null, 2)};\n`;
+  const content = `// ============================================================\n//  portfolio-data.js — Données du portfolio AMS'SERVICES\n//  Éditer via la page de gestion  →  Exporter  →  remplacer ce fichier  →  git push\n// ============================================================\nconst PORTFOLIO_DATA = ${JSON.stringify(s, null, 2)};\n`;
   const blob = new Blob([content], {type:'text/javascript'});
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
