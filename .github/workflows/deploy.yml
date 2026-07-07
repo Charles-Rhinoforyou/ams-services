@@ -31,3 +31,5 @@ jobs:
             .claude/**
             **/node_modules/**
             README.md
+            portfolio-data.js
+            portfolio-data.backup.js

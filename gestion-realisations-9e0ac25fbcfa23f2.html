@@ -193,8 +193,9 @@
     <div class="adm-brand">🛠 AMS Admin <span>— Portfolio Réalisations</span></div>
     <div class="hdr-actions">
       <a href="portfolio.html" target="_blank" class="abtn abtn-ghost">👁 Aperçu</a>
-      <button class="abtn abtn-orange" id="btn-save">💾 Enregistrer</button>
-      <button class="abtn abtn-green" id="btn-export">⬇ Exporter .js</button>
+      <button class="abtn abtn-orange" id="btn-save" title="Sauvegarde de brouillon dans ce navigateur">💾 Brouillon</button>
+      <button class="abtn abtn-green" id="btn-publish" title="Publier en ligne pour tous les visiteurs">🚀 Publier en ligne</button>
+      <button class="abtn abtn-ghost" id="btn-export" title="Télécharger une sauvegarde .js">⬇ Exporter</button>
       <button class="abtn abtn-ghost" id="btn-creds" title="Modifier l'identifiant et le mot de passe">🔑 Identifiants</button>
       <button class="abtn abtn-ghost" id="btn-logout" style="opacity:.65;">Quitter</button>
     </div>
@@ -209,10 +210,10 @@
         <button class="add-sec-btn" id="btn-add-sec">+ Nouvelle section</button>
       </div>
       <div class="workflow-info">
-        <p><strong>Publier les changements</strong><br>
-          1. Enregistrer 💾<br>
-          2. Exporter ⬇ → remplacer <code>portfolio-data.js</code><br>
-          3. <code>git push</code> → déploiement auto OVH</p>
+        <p><strong>Mettre à jour le site</strong><br>
+          🚀 <strong>Publier en ligne</strong> = visible par tous, immédiatement.<br>
+          💾 <strong>Brouillon</strong> = sauvegarde locale (ce navigateur).<br>
+          ⬇ <strong>Exporter</strong> = sauvegarde de secours .js.</p>
       </div>
     </aside>
 
@@ -299,6 +300,7 @@ async function doLogin() {
   const storedPw   = localStorage.getItem(LS_PW)   || DEF_PW;
   if (await sha256(user) === storedUser && await sha256(pw) === storedPw) {
     sessionStorage.setItem(SS_AUTH, '1');
+    sessionStorage.setItem('ams_pw_plain', pw); // nécessaire pour la publication PHP (effacé à la déconnexion)
     showAdmin();
   } else {
     const e = document.getElementById('login-err');
@@ -317,6 +319,7 @@ function showAdmin() {
 
 document.getElementById('btn-logout').onclick = () => {
   sessionStorage.removeItem(SS_AUTH);
+  sessionStorage.removeItem('ams_pw_plain');
   document.getElementById('admin-ui').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('login-pw').value = '';
@@ -381,7 +384,39 @@ function toast(msg, type='') {
 /* ── Save / Export ── */
 document.getElementById('btn-save').onclick = () => {
   localStorage.setItem(LS_DATA, JSON.stringify(state));
-  toast('Données enregistrées dans le navigateur ✓', 'ok');
+  toast('Brouillon enregistré dans ce navigateur ✓', 'ok');
+};
+
+/* ── Publication directe en ligne (script PHP sur OVH) ── */
+document.getElementById('btn-publish').onclick = async () => {
+  const btn = document.getElementById('btn-publish');
+  const pw  = sessionStorage.getItem('ams_pw_plain') || '';
+  if (!pw) { toast('Reconnectez-vous pour pouvoir publier.', 'ko'); return; }
+  if (!confirm('Publier ces modifications EN LIGNE ? Elles seront immédiatement visibles par tous les visiteurs du site.')) return;
+
+  const orig = btn.textContent;
+  btn.disabled = true; btn.textContent = '⏳ Publication…';
+  try {
+    const res = await fetch('publier-realisations.php', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ password: pw, data: state })
+    });
+    let json;
+    try { json = await res.json(); } catch { json = null; }
+    if (res.ok && json && json.success) {
+      localStorage.setItem(LS_DATA, JSON.stringify(state)); // synchronise le brouillon local
+      toast('🚀 Publié en ligne ! Visible par tous — ' + (json.date || ''), 'ok');
+    } else if (json && json.error) {
+      toast('Échec de la publication : ' + json.error, 'ko');
+    } else {
+      toast("Publication indisponible ici (le script PHP ne répond pas — testez sur le site OVH).", 'ko');
+    }
+  } catch (e) {
+    toast('Publication impossible (connexion ou PHP indisponible).', 'ko');
+  } finally {
+    btn.disabled = false; btn.textContent = orig;
+  }
 };
 
 document.getElementById('btn-export').onclick = () => {
