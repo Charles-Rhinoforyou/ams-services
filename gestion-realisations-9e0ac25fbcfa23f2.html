@@ -620,7 +620,10 @@ function buildFicheForm(r) {
       <div class="img-box">
         <img id="fm-main-prev" class="img-preview ${r.imagePrincipale.src?'show':''}" src="${esc(r.imagePrincipale.src||'')}" onerror="this.classList.remove('show')" />
         <div class="form-row" style="margin-bottom:8px;">
-          <div class="afield form-full"><label>Chemin ou URL de l'image</label>
+          <div class="afield form-full">
+            <label style="display:flex;align-items:center;justify-content:space-between;gap:8px;">Chemin, URL ou import
+              <button type="button" class="abtn abtn-primary abtn-sm" style="padding:4px 10px;text-transform:none;letter-spacing:0;" onclick="importMainImg()">📁 Importer depuis l'ordinateur</button>
+            </label>
             <input id="fm-main-src" value="${esc(r.imagePrincipale.src||'')}" placeholder="images/mon-image.jpg"
                    oninput="livePreview('fm-main-src','fm-main-prev')" /></div>
         </div>
@@ -651,7 +654,9 @@ function secImgRow(img, i) {
         ${img.src ? `<img src="${esc(img.src)}" onerror="this.style.display='none'" />` : '🖼'}
       </div>
       <div class="sec-img-fields">
-        <div class="afield"><label>Chemin / URL</label>
+        <div class="afield"><label style="display:flex;align-items:center;justify-content:space-between;gap:8px;">Chemin / URL / import
+            <button type="button" class="abtn abtn-outline abtn-sm" style="padding:3px 9px;font-size:.72rem;text-transform:none;letter-spacing:0;" onclick="importSecImg(this)">📁 Importer</button>
+          </label>
           <input class="si-src" value="${esc(img.src||'')}" placeholder="images/photo.jpg" oninput="updateSecThumb(this)" /></div>
         <div class="afield"><label>Alt</label>
           <input class="si-alt" value="${esc(img.alt||'')}" placeholder="Description..." /></div>
@@ -698,6 +703,49 @@ function updateSecThumb(input) {
   } else {
     box.innerHTML = '🖼';
   }
+}
+
+/* ── Import d'une image depuis l'ordinateur (upload PHP → dossier images/) ── */
+async function uploadToField(srcInput, afterFill) {
+  const pw = sessionStorage.getItem('ams_pw_plain') || '';
+  if (!pw) { toast('Reconnectez-vous pour importer une image.', 'ko'); return; }
+  const picker = document.createElement('input');
+  picker.type = 'file';
+  picker.accept = 'image/jpeg,image/png,image/webp,image/gif';
+  picker.onchange = async () => {
+    const file = picker.files && picker.files[0];
+    if (!file) return;
+    if (file.size > 8 * 1024 * 1024) { toast('Image trop lourde (max 8 Mo).', 'ko'); return; }
+    toast('⏳ Import de l\'image en cours…');
+    const fd = new FormData();
+    fd.append('password', pw);
+    fd.append('image', file);
+    try {
+      const res = await fetch('uploader-image.php', { method: 'POST', body: fd });
+      let json; try { json = await res.json(); } catch { json = null; }
+      if (res.ok && json && json.success) {
+        srcInput.value = json.path;
+        if (afterFill) afterFill();
+        toast('✅ Image importée — pensez à Publier pour la mettre en ligne', 'ok');
+      } else if (json && json.error) {
+        toast('Échec import : ' + json.error, 'ko');
+      } else {
+        toast("Import indisponible ici (à tester sur le site OVH en ligne).", 'ko');
+      }
+    } catch (e) {
+      toast('Import impossible (connexion ou PHP indisponible).', 'ko');
+    }
+  };
+  picker.click();
+}
+
+function importMainImg() {
+  uploadToField(document.getElementById('fm-main-src'), () => livePreview('fm-main-src', 'fm-main-prev'));
+}
+
+function importSecImg(btn) {
+  const input = btn.closest('.sec-img-item').querySelector('.si-src');
+  uploadToField(input, () => updateSecThumb(input));
 }
 
 function saveFicheModal() {

@@ -33,3 +33,4 @@ jobs:
             README.md
             portfolio-data.js
             portfolio-data.backup.js
+            images/**
