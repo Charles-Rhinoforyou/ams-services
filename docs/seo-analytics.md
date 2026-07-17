@@ -98,5 +98,6 @@ Elle ne sera en ligne qu'après fusion dans `master`.
 
 - Estimation « visiteurs » = unique **par jour** (choix de confidentialité).
 - Stockage fichiers plats : adapté à un site vitrine, pas à un très gros trafic (prévoir SQLite/MySQL au besoin).
-- Édition des métadonnées SEO depuis l'interface : **lecture seule** en Phase 1 (écriture des `.html` à faire en Phase 3, avec historique + redirections 301 si changement d'URL).
+- Édition des métadonnées SEO depuis l'interface : **disponible** (Phase 3, `api/seo-save.php`) pour le `<head>` (title, description, canonical, robots, Open Graph). Backup + historique automatiques. H1/URL non modifiables (contenu visible / redirections).
+  - ⚠️ **Vigilance déploiement** : l'édition SEO écrit directement dans les `.html` sur OVH. Les pages HTML ne sont **pas** exclues du déploiement FTP (contrairement à `portfolio-data.js`/`images/`). Le déploiement ne ré-uploade qu'un fichier **modifié dans le dépôt** ; donc un `git push` n'écrase les métadonnées d'une page **que si cette page précise a été modifiée dans le repo**. Avant toute modification d'une page via git, relire d'abord son `<head>` en ligne pour préserver le SEO édité par le client.
 - Search Console & Géographie : non branchés (états « Non configuré »).
