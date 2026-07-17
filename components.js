@@ -182,7 +182,7 @@ function renderDevisModal() {
     <div class="devis-modal" role="dialog" aria-modal="true" aria-labelledby="devis-modal-title">
       <button class="devis-modal-close" id="devis-modal-close" aria-label="Fermer">&times;</button>
       <h3 id="devis-modal-title">📋 Demande de devis gratuit</h3>
-      <p class="devis-modal-sub">Réponse rapide — Intervention à partir de 150€</p>
+      <p class="devis-modal-sub">Réponse rapide — Intervention à partir de 70€</p>
       <form id="devis-modal-form" novalidate>
         <input type="hidden" name="_subject" value="Nouvelle demande de devis — AMS'SERVICES" />
         <input type="hidden" name="_captcha" value="false" />
