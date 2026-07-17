@@ -162,6 +162,60 @@
       .adm-sidebar { display:none; }
       .form-row { grid-template-columns:1fr; }
     }
+
+    /* ── Onglets principaux ── */
+    .adm-brand { flex:none; }
+    .adm-tabs { display:flex; gap:6px; margin-left:20px; margin-right:auto; }
+    .adm-tab { background:rgba(255,255,255,.12); color:#fff; border:none; padding:8px 16px; border-radius:8px 8px 0 0; font-family:inherit; font-size:.85rem; font-weight:600; cursor:pointer; opacity:.7; transition:all .15s; }
+    .adm-tab:hover { opacity:1; background:rgba(255,255,255,.2); }
+    .adm-tab.active { opacity:1; background:#F1F5F9; color:var(--blue); }
+
+    /* ── Barre de période ── */
+    .stats-toolbar { display:flex; flex-wrap:wrap; align-items:center; gap:12px; margin-bottom:22px; }
+    .period-pills { display:flex; gap:4px; background:var(--white); border-radius:10px; padding:4px; box-shadow:var(--shadow); }
+    .ppill { border:none; background:none; padding:7px 14px; border-radius:7px; font-family:inherit; font-size:.82rem; font-weight:600; color:var(--gray); cursor:pointer; transition:all .15s; }
+    .ppill.active { background:var(--blue); color:#fff; }
+    .period-custom { display:flex; align-items:center; gap:6px; font-size:.82rem; color:var(--gray); }
+    .period-custom input { border:1.5px solid #D1D5DB; border-radius:8px; padding:6px 8px; font-family:inherit; font-size:.82rem; }
+
+    /* ── Cartes KPI ── */
+    .kpi-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:14px; margin-bottom:22px; }
+    .kpi-card { background:var(--white); border-radius:12px; padding:16px 18px; box-shadow:var(--shadow); }
+    .kpi-label { font-size:.74rem; font-weight:700; color:var(--gray); text-transform:uppercase; letter-spacing:.5px; display:flex; align-items:center; gap:5px; }
+    .kpi-value { font-size:1.7rem; font-weight:800; color:var(--dark); margin:4px 0 2px; }
+    .kpi-delta { font-size:.78rem; font-weight:700; }
+    .kpi-delta.up { color:#16a34a; } .kpi-delta.down { color:#DC2626; } .kpi-delta.flat { color:var(--gray); }
+    .kpi-hint { font-size:.7rem; color:#9CA3AF; }
+
+    /* ── Cartes / tableaux génériques ── */
+    .stats-card { background:var(--white); border-radius:12px; padding:20px; box-shadow:var(--shadow); margin-bottom:22px; }
+    .stats-card h3 { font-size:.95rem; font-weight:700; margin-bottom:14px; }
+    .stats-2col { display:grid; grid-template-columns:1fr 1fr; gap:22px; }
+    @media(max-width:900px){ .stats-2col { grid-template-columns:1fr; } }
+    .stats-table { width:100%; border-collapse:collapse; font-size:.84rem; }
+    .stats-table th { text-align:left; color:var(--gray); font-size:.72rem; text-transform:uppercase; letter-spacing:.4px; padding:8px 10px; border-bottom:2px solid #E5E7EB; cursor:pointer; white-space:nowrap; }
+    .stats-table td { padding:9px 10px; border-bottom:1px solid #F1F5F9; }
+    .stats-table tr:hover td { background:#F8FAFC; }
+    .bar-row { display:flex; align-items:center; gap:10px; margin-bottom:8px; font-size:.84rem; }
+    .bar-row .bar-label { flex:0 0 42%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .bar-row .bar-track { flex:1; height:8px; background:#F1F5F9; border-radius:5px; overflow:hidden; }
+    .bar-row .bar-fill { height:100%; background:var(--blue); border-radius:5px; }
+    .bar-row .bar-val { flex:0 0 auto; font-weight:700; color:var(--dark); font-size:.8rem; }
+
+    .seo-badge { display:inline-block; font-size:.7rem; font-weight:700; padding:2px 8px; border-radius:20px; }
+    .seo-badge.ok { background:#DCFCE7; color:#166534; } .seo-badge.mid { background:#FEF3C7; color:#92400E; } .seo-badge.bad { background:#FEE2E2; color:#B91C1C; }
+    .seo-issue { font-size:.72rem; padding:1px 7px; border-radius:20px; margin:1px 2px 1px 0; display:inline-block; }
+    .seo-issue.err { background:#FEE2E2; color:#B91C1C; } .seo-issue.warn { background:#FEF3C7; color:#92400E; }
+
+    .notconf { text-align:center; padding:40px 24px; }
+    .notconf .eicon { font-size:2.6rem; margin-bottom:10px; }
+    .notconf h3 { font-size:1.05rem; margin-bottom:6px; }
+    .notconf p { font-size:.85rem; color:var(--gray); max-width:460px; margin:0 auto 6px; line-height:1.6; }
+    .chart-wrap { position:relative; width:100%; height:240px; }
+    .chart-legend { display:flex; gap:16px; flex-wrap:wrap; margin-top:10px; font-size:.78rem; }
+    .chart-legend span { display:inline-flex; align-items:center; gap:5px; cursor:pointer; user-select:none; }
+    .chart-legend i { width:11px; height:11px; border-radius:3px; display:inline-block; }
+    .chart-legend .off { opacity:.4; text-decoration:line-through; }
   </style>
 </head>
 <body>
@@ -190,18 +244,25 @@
 <div id="admin-ui">
 
   <header class="adm-hdr">
-    <div class="adm-brand">🛠 AMS Admin <span>— Portfolio Réalisations</span></div>
+    <div class="adm-brand">🛠 AMS Admin</div>
+    <nav class="adm-tabs" role="tablist">
+      <button class="adm-tab active" id="tab-realisations" onclick="switchView('realisations')">🖼 Réalisations</button>
+      <button class="adm-tab" id="tab-analytics" onclick="switchView('analytics')">📊 SEO &amp; Statistiques</button>
+    </nav>
     <div class="hdr-actions">
-      <a href="portfolio.html" target="_blank" class="abtn abtn-ghost">👁 Aperçu</a>
-      <button class="abtn abtn-orange" id="btn-save" title="Sauvegarde de brouillon dans ce navigateur">💾 Brouillon</button>
-      <button class="abtn abtn-green" id="btn-publish" title="Publier en ligne pour tous les visiteurs">🚀 Publier en ligne</button>
-      <button class="abtn abtn-ghost" id="btn-export" title="Télécharger une sauvegarde .js">⬇ Exporter</button>
+      <span id="actions-realisations" style="display:contents;">
+        <a href="portfolio.html" target="_blank" class="abtn abtn-ghost">👁 Aperçu</a>
+        <button class="abtn abtn-orange" id="btn-save" title="Sauvegarde de brouillon dans ce navigateur">💾 Brouillon</button>
+        <button class="abtn abtn-green" id="btn-publish" title="Publier en ligne pour tous les visiteurs">🚀 Publier en ligne</button>
+        <button class="abtn abtn-ghost" id="btn-export" title="Télécharger une sauvegarde .js">⬇ Exporter</button>
+      </span>
       <button class="abtn abtn-ghost" id="btn-creds" title="Modifier l'identifiant et le mot de passe">🔑 Identifiants</button>
       <button class="abtn abtn-ghost" id="btn-logout" style="opacity:.65;">Quitter</button>
     </div>
   </header>
 
-  <div class="adm-body">
+  <div id="view-realisations">
+   <div class="adm-body">
 
     <aside class="adm-sidebar">
       <div class="sidebar-label">Sections</div>
@@ -220,6 +281,48 @@
     <main class="adm-main" id="main-panel">
       <div class="empty"><div class="eicon">👈</div><p>Sélectionnez une section dans le menu</p></div>
     </main>
+   </div>
+  </div>
+
+  <!-- ════════════════════ VUE SEO & STATISTIQUES ════════════════════ -->
+  <div id="view-analytics" style="display:none;">
+   <div class="adm-body">
+    <aside class="adm-sidebar">
+      <div class="sidebar-label">Tableau de bord</div>
+      <div id="stats-subnav">
+        <div class="sec-item active" data-sub="overview"      onclick="statsNav('overview')"><span class="si-icon">📈</span><span class="si-name">Vue générale</span></div>
+        <div class="sec-item"        data-sub="seo"           onclick="statsNav('seo')"><span class="si-icon">🔍</span><span class="si-name">Pages &amp; SEO</span></div>
+        <div class="sec-item"        data-sub="interventions" onclick="statsNav('interventions')"><span class="si-icon">🛠️</span><span class="si-name">Interventions</span></div>
+        <div class="sec-item"        data-sub="conversions"   onclick="statsNav('conversions')"><span class="si-icon">🎯</span><span class="si-name">Conversions</span></div>
+        <div class="sec-item"        data-sub="search"        onclick="statsNav('search')"><span class="si-icon">🔎</span><span class="si-name">Recherche Google</span></div>
+        <div class="sec-item"        data-sub="geo"           onclick="statsNav('geo')"><span class="si-icon">🌍</span><span class="si-name">Géographie</span></div>
+        <div class="sec-item"        data-sub="reco"          onclick="statsNav('reco')"><span class="si-icon">💡</span><span class="si-name">Recommandations</span></div>
+        <div class="sec-item"        data-sub="config"        onclick="statsNav('config')"><span class="si-icon">⚙️</span><span class="si-name">Configuration &amp; RGPD</span></div>
+      </div>
+      <div class="workflow-info">
+        <p><strong>Confidentialité</strong><br>Statistiques agrégées et anonymes. Aucune donnée de formulaire ni IP en clair. Mesure active uniquement après consentement du visiteur.</p>
+      </div>
+    </aside>
+
+    <main class="adm-main">
+      <!-- Barre de période -->
+      <div class="stats-toolbar">
+        <div class="period-pills">
+          <button class="ppill active" data-days="7"   onclick="setPeriod(7)">7 j</button>
+          <button class="ppill"        data-days="30"  onclick="setPeriod(30)">30 j</button>
+          <button class="ppill"        data-days="90"  onclick="setPeriod(90)">90 j</button>
+          <button class="ppill"        data-days="365" onclick="setPeriod(365)">12 mois</button>
+        </div>
+        <div class="period-custom">
+          <input type="date" id="stats-from" onchange="customPeriod()" />
+          <span>→</span>
+          <input type="date" id="stats-to" onchange="customPeriod()" />
+        </div>
+        <button class="abtn abtn-outline abtn-sm" onclick="loadStats()">↻ Actualiser</button>
+      </div>
+      <div id="stats-panel"><div class="empty"><div class="eicon">📊</div><p>Chargement…</p></div></div>
+    </main>
+   </div>
   </div>
 </div>
 
@@ -800,6 +903,254 @@ document.getElementById('creds-overlay').addEventListener('click', e => {
 /* ── Helpers ── */
 function esc(s) {
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ════════════════════════════════════════════════════════════
+   ONGLET « SEO & STATISTIQUES »
+   ════════════════════════════════════════════════════════════ */
+let statsLoadedOnce = false;
+let statsSub    = 'overview';
+let statsFilters = {};
+let statsPeriod = { from: isoDaysAgo(6), to: isoToday() };
+let chartToggles = { pageviews:true, visitors:true, conversions:true };
+let ovChartData = null;
+
+function isoToday(){ return new Date().toISOString().slice(0,10); }
+function isoDaysAgo(n){ const d=new Date(); d.setDate(d.getDate()-n); return d.toISOString().slice(0,10); }
+function fmtInt(n){ return (Math.round(+n||0)).toLocaleString('fr-FR'); }
+
+function switchView(v){
+  const isA = v === 'analytics';
+  document.getElementById('view-realisations').style.display = isA ? 'none' : '';
+  document.getElementById('view-analytics').style.display    = isA ? '' : 'none';
+  document.getElementById('tab-realisations').classList.toggle('active', !isA);
+  document.getElementById('tab-analytics').classList.toggle('active', isA);
+  document.getElementById('actions-realisations').style.display = isA ? 'none' : 'contents';
+  if (isA && !statsLoadedOnce) { statsLoadedOnce = true; document.getElementById('stats-from').value=statsPeriod.from; document.getElementById('stats-to').value=statsPeriod.to; loadStats(); }
+}
+
+function setPeriod(days){
+  statsPeriod = { from: isoDaysAgo(days-1), to: isoToday() };
+  document.querySelectorAll('.ppill').forEach(p=>p.classList.toggle('active', +p.dataset.days===days));
+  document.getElementById('stats-from').value=statsPeriod.from; document.getElementById('stats-to').value=statsPeriod.to;
+  loadStats();
+}
+function customPeriod(){
+  const f=document.getElementById('stats-from').value, t=document.getElementById('stats-to').value;
+  if(f&&t){ statsPeriod={from:f,to:t}; document.querySelectorAll('.ppill').forEach(p=>p.classList.remove('active')); loadStats(); }
+}
+function statsNav(sub){
+  statsSub = sub;
+  document.querySelectorAll('#stats-subnav .sec-item').forEach(el=>el.classList.toggle('active', el.dataset.sub===sub));
+  loadStats();
+}
+
+async function apiStats(action, extra){
+  const pw = sessionStorage.getItem('ams_pw_plain') || '';
+  const res = await fetch('api/stats.php', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(Object.assign({ password:pw, action, from:statsPeriod.from, to:statsPeriod.to, filters:statsFilters }, extra||{}))
+  });
+  let json; try { json = await res.json(); } catch { throw new Error('Réponse invalide (API PHP indisponible ici ?)'); }
+  if (!res.ok || !json.success) throw new Error(json && json.error ? json.error : 'Erreur serveur');
+  return json;
+}
+
+async function loadStats(){
+  const panel = document.getElementById('stats-panel');
+  panel.innerHTML = '<div class="empty"><div class="eicon">⏳</div><p>Chargement…</p></div>';
+  try {
+    if      (statsSub==='overview')      await renderOverview(panel);
+    else if (statsSub==='seo')           await renderSeo(panel);
+    else if (statsSub==='interventions') await renderInterventions(panel);
+    else if (statsSub==='conversions')   await renderConversions(panel);
+    else if (statsSub==='config')        await renderConfig(panel);
+    else if (statsSub==='reco')          await renderReco(panel);
+    else if (statsSub==='search')        renderNotConf(panel,'🔎','Google Search Console non connecté','Reliez l\'API Search Console côté serveur pour afficher impressions, clics, position moyenne et requêtes. Variables à configurer : GSC_CLIENT_EMAIL, GSC_PRIVATE_KEY, GSC_SITE_URL (voir docs/seo-analytics.md).');
+    else if (statsSub==='geo')           renderNotConf(panel,'🌍','Géolocalisation non configurée','La provenance géographique agrégée nécessite une base GeoIP ou Matomo côté serveur. Les données resteront agrégées, avec un seuil de confidentialité masquant les zones à faible volume. Voir docs/seo-analytics.md.');
+  } catch(e){
+    panel.innerHTML = `<div class="notconf"><div class="eicon">⚠️</div><h3>Impossible de charger les données</h3><p>${esc(e.message||'Erreur')}</p><p style="font-size:.78rem;">Si vous venez de vous reconnecter, cliquez ↻ Actualiser. Le tableau de bord fonctionne uniquement sur le site en ligne OVH (PHP requis).</p></div>`;
+  }
+}
+
+function emptyState(){
+  return `<div class="notconf"><div class="eicon">🌱</div><h3>Pas encore de données sur cette période</h3><p>La mesure d'audience vient d'être installée : les statistiques apparaîtront dès que des visiteurs auront navigué <strong>et accepté les cookies</strong>.</p><p style="font-size:.78rem;">La collecte ne fonctionne que sur le site en ligne. Essayez d'élargir la période.</p></div>`;
+}
+function renderNotConf(panel,icon,title,msg){
+  panel.innerHTML = `<div class="notconf"><div class="eicon">${icon}</div><h3>${esc(title)}</h3><p>${esc(msg)}</p></div>`;
+}
+
+function kpi(label,val,prev,hint,suffix){
+  suffix = suffix||'';
+  let delta='';
+  if(prev!==undefined){
+    if(prev===0 && val===0) delta='<span class="kpi-delta flat">—</span>';
+    else if(prev===0) delta='<span class="kpi-delta up">▲ nouveau</span>';
+    else { const d=Math.round((val-prev)/prev*100); const cls=d>0?'up':(d<0?'down':'flat'); const arr=d>0?'▲':(d<0?'▼':'—'); delta=`<span class="kpi-delta ${cls}">${arr} ${Math.abs(d)} %</span>`; }
+  }
+  return `<div class="kpi-card"><div class="kpi-label">${label}</div><div class="kpi-value">${fmtInt(val)}${suffix}</div>${delta}${hint?`<div class="kpi-hint" title="${esc(hint)}">${esc(hint)}</div>`:''}</div>`;
+}
+function barList(items){
+  if(!items||!items.length) return '<p style="font-size:.82rem;color:var(--gray);">Aucune donnée sur la période.</p>';
+  const max=Math.max.apply(null,items.map(i=>i.value))||1;
+  return items.map(i=>`<div class="bar-row"><span class="bar-label" title="${esc(i.label)}">${esc(i.label)}</span><span class="bar-track"><span class="bar-fill" style="width:${Math.round(i.value/max*100)}%"></span></span><span class="bar-val">${fmtInt(i.value)}</span></div>`).join('');
+}
+
+async function renderOverview(panel){
+  const o = await apiStats('overview');
+  if(!o.hasData){ panel.innerHTML = emptyState(); return; }
+  const ts = await apiStats('timeseries');
+  const c=o.current, p=o.previous;
+  const kpis = [
+    kpi('👁 Pages vues', c.pageviews, p.pageviews, 'Nombre total de pages affichées'),
+    kpi('🧑 Visiteurs (est.)', c.visitors, p.visitors, 'Estimation anonyme (hash journalier)'),
+    kpi('🎯 Conversions', c.conversions, p.conversions, 'Formulaires + tel + email + devis'),
+    kpi('📈 Taux de conv.', c.convRate, p.convRate, 'Conversions / pages vues', ' %'),
+    kpi('📞 Clics téléphone', c.phone, p.phone),
+    kpi('✉️ Clics email', c.email, p.email),
+    kpi('📝 Formulaires', c.forms, p.forms),
+    kpi('🧾 Demandes de devis', c.quote, p.quote)
+  ].join('');
+  panel.innerHTML = `
+    <div class="kpi-grid">${kpis}</div>
+    <div class="stats-card"><h3>Évolution sur la période</h3><div class="chart-wrap"><canvas id="ov-chart"></canvas></div><div class="chart-legend" id="ov-legend"></div></div>
+    <div class="stats-2col">
+      <div class="stats-card"><h3>Pages les plus vues</h3>${barList(o.topPages)}</div>
+      <div class="stats-card"><h3>Interventions les plus vues</h3>${barList(o.topInterventions)}</div>
+    </div>
+    <div class="stats-2col">
+      <div class="stats-card"><h3>Éléments les plus utilisés</h3>${barList(o.topEvents)}</div>
+      <div class="stats-card"><h3>Appareils</h3>${barList(o.devices)}<h3 style="margin-top:16px;">Sources de trafic</h3>${barList(o.sources)}</div>
+    </div>`;
+  drawTimeseries(ts.series);
+}
+
+function drawTimeseries(series){
+  ovChartData = series;
+  const defs=[['pageviews','Pages vues','#2B5EA7'],['visitors','Visiteurs','#F9C200'],['conversions','Conversions','#16a34a']];
+  const legend=document.getElementById('ov-legend');
+  if(legend) legend.innerHTML = defs.map(d=>`<span class="${chartToggles[d[0]]?'':'off'}" onclick="toggleSeries('${d[0]}')"><i style="background:${d[2]}"></i>${d[1]}</span>`).join('');
+  renderChart();
+}
+function toggleSeries(k){ chartToggles[k]=!chartToggles[k]; drawTimeseries(ovChartData); }
+function renderChart(){
+  const cv=document.getElementById('ov-chart'); if(!cv||!ovChartData) return;
+  const wrap=cv.parentNode, W=wrap.clientWidth, H=wrap.clientHeight, dpr=window.devicePixelRatio||1;
+  cv.width=W*dpr; cv.height=H*dpr; cv.style.width=W+'px'; cv.style.height=H+'px';
+  const ctx=cv.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,W,H);
+  const pad={l:40,r:12,t:12,b:24}, s=ovChartData, n=s.length;
+  const defs=[['pageviews','#2B5EA7'],['visitors','#F9C200'],['conversions','#16a34a']].filter(d=>chartToggles[d[0]]);
+  let max=1; s.forEach(r=>defs.forEach(d=>{ max=Math.max(max, r[d[0]]); }));
+  const gx=i=>pad.l+(W-pad.l-pad.r)*(n<=1?0.5:i/(n-1));
+  const gy=v=>H-pad.b-(H-pad.t-pad.b)*(v/max);
+  ctx.strokeStyle='#E5E7EB'; ctx.lineWidth=1; ctx.fillStyle='#9CA3AF'; ctx.font='10px Inter,sans-serif';
+  for(let i=0;i<=4;i++){ const v=Math.round(max*i/4), y=gy(v); ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(W-pad.r,y); ctx.stroke(); ctx.fillText(fmtInt(v),4,y+3); }
+  (n<=1?[0]:[0,Math.floor(n/2),n-1]).forEach(i=>{ if(s[i]) ctx.fillText(s[i].date.slice(5), gx(i)-12, H-6); });
+  defs.forEach(d=>{ ctx.beginPath(); ctx.strokeStyle=d[1]; ctx.lineWidth=2; s.forEach((r,i)=>{ const x=gx(i),y=gy(r[d[0]]); i?ctx.lineTo(x,y):ctx.moveTo(x,y); }); ctx.stroke(); });
+}
+window.addEventListener('resize', ()=>{ if(statsSub==='overview' && document.getElementById('ov-chart')) renderChart(); });
+
+async function renderSeo(panel){
+  const r = await apiStats('seo');
+  const rows = r.pages.map(p=>{
+    const cls=p.score>=80?'ok':(p.score>=55?'mid':'bad');
+    const issues=p.issues.length ? p.issues.map(i=>`<span class="seo-issue ${i.lvl==='err'?'err':'warn'}">${esc(i.msg)}</span>`).join('') : '<span style="color:#16a34a;font-size:.75rem;">✓ OK</span>';
+    return `<tr>
+      <td><strong>${esc(p.file)}</strong><br><a href="${esc(p.url)}" target="_blank" style="font-size:.72rem;color:var(--blue);">ouvrir ↗</a></td>
+      <td style="max-width:200px;">${esc(p.title||'—')}<br><span style="font-size:.7rem;color:${p.titleLen>=30&&p.titleLen<=65?'#16a34a':'#B91C1C'}">${p.titleLen} car.</span></td>
+      <td style="max-width:240px;">${esc(p.description||'—')}<br><span style="font-size:.7rem;color:${p.descLen>=70&&p.descLen<=160?'#16a34a':'#B91C1C'}">${p.descLen} car.</span></td>
+      <td>${p.indexable?'✅':'🚫'}</td>
+      <td><span class="seo-badge ${cls}">${p.score}/100</span></td>
+      <td>${issues}</td></tr>`;
+  }).join('');
+  panel.innerHTML = `
+    <div class="stats-card">
+      <h3>Inventaire SEO des pages publiques (${r.pages.length})</h3>
+      <p style="font-size:.78rem;color:var(--gray);margin-bottom:12px;">Le score est un <strong>indicateur interne d'aide à la vérification</strong>, pas une note officielle de Google. L'édition des métadonnées depuis cette interface arrivera dans une prochaine étape (voir docs).</p>
+      <div style="overflow-x:auto;"><table class="stats-table"><thead><tr><th>Page</th><th>Titre</th><th>Méta-description</th><th>Index</th><th>Score</th><th>Anomalies</th></tr></thead><tbody>${rows}</tbody></table></div>
+    </div>`;
+}
+
+async function renderInterventions(panel){
+  const r=await apiStats('interventions');
+  if(!r.rows.length){ panel.innerHTML=emptyState(); return; }
+  const rows=r.rows.map(x=>`<tr><td><strong>${esc(x.itype)}</strong></td><td>${fmtInt(x.pageviews)}</td><td>${fmtInt(x.visitors)}</td><td>${fmtInt(x.conversions)}</td><td>${x.convRate} %</td></tr>`).join('');
+  panel.innerHTML=`<div class="stats-card"><h3>Performance par type d'intervention</h3><div style="overflow-x:auto;"><table class="stats-table"><thead><tr><th>Intervention</th><th>Pages vues</th><th>Visiteurs</th><th>Conversions</th><th>Taux</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+}
+
+async function renderConversions(panel){
+  const r=await apiStats('conversions'); const s=r.summary;
+  const labels={form_submit:'📝 Formulaires',phone_click:'📞 Téléphone',email_click:'✉️ Email',quote_request:'🧾 Devis'};
+  const byType=Object.keys(labels).map(k=>({label:labels[k],value:r.byType[k]||0}));
+  const byPage=Object.entries(r.byPage||{}).map(([k,v])=>({label:k,value:v}));
+  panel.innerHTML=`
+    <div class="kpi-grid">${kpi('🎯 Conversions',s.conversions)}${kpi('📈 Taux',s.convRate,undefined,'Conversions / pages vues',' %')}${kpi('📞 Téléphone',s.phone)}${kpi('📝 Formulaires',s.forms)}</div>
+    <div class="stats-2col"><div class="stats-card"><h3>Par type de conversion</h3>${barList(byType)}</div><div class="stats-card"><h3>Par page</h3>${barList(byPage)}</div></div>`;
+}
+
+async function renderReco(panel){
+  let cards=[];
+  try{
+    const seo=await apiStats('seo');
+    seo.pages.forEach(p=>{ const errs=p.issues.filter(i=>i.lvl==='err'); if(errs.length) cards.push({prio:'Haute',page:p.file,reason:errs.map(i=>i.msg).join(', '),action:'Compléter les métadonnées manquantes de la page.'}); });
+    seo.pages.forEach(p=>{ if(p.issues.some(i=>i.msg==='Titre dupliqué')) cards.push({prio:'Moyenne',page:p.file,reason:'Titre identique à une autre page.',action:'Rendre la balise title unique.'}); });
+  }catch(e){}
+  try{
+    const o=await apiStats('overview');
+    if(o.hasData){
+      const conv=await apiStats('conversions');
+      (o.topPages||[]).slice(0,3).forEach(pg=>{ const c=(conv.byPage&&conv.byPage[pg.label])||0; if(pg.value>=10 && c===0) cards.push({prio:'Haute',page:pg.label,reason:pg.value+' vues mais 0 conversion.',action:'Renforcer l\'appel à l\'action (bouton contact / téléphone).'}); });
+      if((o.current.convRate||0)<1 && o.current.pageviews>50) cards.push({prio:'Moyenne',page:'(global)',reason:'Taux de conversion global inférieur à 1 %.',action:'Rendre les boutons de contact plus visibles.'});
+    }
+  }catch(e){}
+  const seen={}; cards=cards.filter(c=>{const k=c.page+c.reason; if(seen[k])return false; seen[k]=1; return true;}).slice(0,20);
+  if(!cards.length){ panel.innerHTML=`<div class="notconf"><div class="eicon">💡</div><h3>Aucune recommandation critique</h3><p>Les métadonnées semblent correctes, et/ou les données d'audience sont encore insuffisantes pour des recommandations fiables.</p></div>`; return; }
+  panel.innerHTML=`<div class="stats-card"><h3>Recommandations (règles transparentes)</h3>${cards.map(c=>`
+    <div style="border-left:4px solid ${c.prio==='Haute'?'#B91C1C':(c.prio==='Moyenne'?'#92400E':'#6B7280')};background:#F8FAFC;border-radius:8px;padding:12px 14px;margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;gap:10px;"><strong style="font-size:.9rem;">${esc(c.page)}</strong><span class="seo-badge ${c.prio==='Haute'?'bad':(c.prio==='Moyenne'?'mid':'ok')}">${c.prio}</span></div>
+      <div style="font-size:.84rem;margin:4px 0;">${esc(c.reason)}</div>
+      <div style="font-size:.82rem;color:var(--blue);">→ ${esc(c.action)}</div>
+    </div>`).join('')}</div>`;
+}
+
+async function renderConfig(panel){
+  const r=await apiStats('config-get'); const c=r.config;
+  panel.innerHTML=`
+    <div class="stats-card">
+      <h3>⚙️ Paramètres de mesure</h3>
+      <div class="form-row">
+        <div class="afield"><label>Durée de conservation (jours)</label><input type="number" id="cf-ret" value="${c.retention_days}" min="30" max="3650"></div>
+        <div class="afield"><label>Seuil de confidentialité géo (visiteurs min.)</label><input type="number" id="cf-geo" value="${c.geo_threshold}" min="1"></div>
+      </div>
+      <label class="radio-opt" style="margin-top:8px;"><input type="checkbox" id="cf-excl" ${c.exclude_admin?'checked':''}> Exclure les administrateurs des statistiques</label>
+      <div class="form-save" style="margin-top:12px;"><button class="abtn abtn-primary abtn-sm" onclick="saveStatsConfig()">Enregistrer</button><button class="abtn abtn-danger abtn-sm" onclick="purgeStats()" style="margin-left:8px;">🗑 Purger au-delà de la rétention</button></div>
+    </div>
+    <div class="stats-card">
+      <h3>🔒 RGPD — ce qui est techniquement en place</h3>
+      <ul style="font-size:.85rem;line-height:1.9;padding-left:18px;margin:0;">
+        <li>✅ Aucune collecte avant consentement (bannière cookies existante).</li>
+        <li>✅ IP jamais stockée en clair (hash journalier salé).</li>
+        <li>✅ Aucun contenu de formulaire enregistré.</li>
+        <li>✅ Données agrégées, hébergées sur votre serveur OVH (aucun tiers).</li>
+        <li>✅ Durée de conservation configurable + purge manuelle.</li>
+      </ul>
+      <h3 style="margin-top:16px;">À valider par vos soins</h3>
+      <ul style="font-size:.85rem;line-height:1.9;padding-left:18px;color:var(--gray);margin:0;">
+        <li>⚠️ Mettre à jour la politique de confidentialité (mention de la mesure d'audience).</li>
+        <li>⚠️ Ajouter un lien « gérer / retirer le consentement ».</li>
+        <li>⚠️ Vérifier l'exemption CNIL ou le recueil de consentement selon votre configuration finale.</li>
+      </ul>
+      <p style="font-size:.78rem;color:var(--gray);margin-top:8px;">Cet outil facilite la conformité mais ne constitue pas une validation juridique.</p>
+    </div>`;
+}
+async function saveStatsConfig(){
+  try{ await apiStats('config-set',{config:{retention_days:+document.getElementById('cf-ret').value, geo_threshold:+document.getElementById('cf-geo').value, exclude_admin:document.getElementById('cf-excl').checked}}); toast('Configuration enregistrée ✓','ok'); }
+  catch(e){ toast('Échec : '+e.message,'ko'); }
+}
+async function purgeStats(){
+  if(!confirm('Supprimer définitivement les données au-delà de la durée de conservation ?')) return;
+  try{ const r=await apiStats('purge'); toast('Purge effectuée ('+r.deleted.length+' mois supprimés)','ok'); }
+  catch(e){ toast('Échec : '+e.message,'ko'); }
 }
 </script>
 </body>

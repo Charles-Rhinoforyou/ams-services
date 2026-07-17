@@ -1,0 +1,7 @@
+# Données analytics collectées sur le serveur (jamais committées ni déployées)
+stats-data/
+portfolio-data.backup.js
+
+# Divers
+.DS_Store
+Thumbs.db
