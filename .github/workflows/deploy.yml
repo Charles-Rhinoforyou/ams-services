@@ -36,3 +36,5 @@ jobs:
             images/**
             stats-data/**
             .gitignore
+            .env.example
+            docs/**
