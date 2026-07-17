@@ -34,3 +34,5 @@ jobs:
             portfolio-data.js
             portfolio-data.backup.js
             images/**
+            stats-data/**
+            .gitignore

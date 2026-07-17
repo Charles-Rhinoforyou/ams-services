@@ -183,7 +183,7 @@ function renderDevisModal() {
       <button class="devis-modal-close" id="devis-modal-close" aria-label="Fermer">&times;</button>
       <h3 id="devis-modal-title">📋 Demande de devis gratuit</h3>
       <p class="devis-modal-sub">Réponse rapide — Intervention à partir de 70€</p>
-      <form id="devis-modal-form" novalidate>
+      <form id="devis-modal-form" novalidate data-analytics-form data-analytics-type="quote">
         <input type="hidden" name="_subject" value="Nouvelle demande de devis — AMS'SERVICES" />
         <input type="hidden" name="_captcha" value="false" />
         <input type="hidden" name="_template" value="table" />
@@ -279,7 +279,7 @@ function initCommon() {
   if (!localStorage.getItem('cookie-consent')) {
     setTimeout(() => { const b = document.getElementById('cookie-banner'); if (b) b.classList.add('show'); }, 1500);
   }
-  document.getElementById('cookie-accept')?.addEventListener('click', () => { localStorage.setItem('cookie-consent','accepted'); document.getElementById('cookie-banner').classList.remove('show'); });
+  document.getElementById('cookie-accept')?.addEventListener('click', () => { localStorage.setItem('cookie-consent','accepted'); document.getElementById('cookie-banner').classList.remove('show'); window.dispatchEvent(new Event('ams-consent-accepted')); });
   document.getElementById('cookie-refuse')?.addEventListener('click', () => { localStorage.setItem('cookie-consent','refused'); document.getElementById('cookie-banner').classList.remove('show'); });
 
   // Floating devis modal
@@ -338,4 +338,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Init behaviors
   initCommon();
+
+  // Mesure d'audience (chargée sur toutes les pages ; ne collecte qu'après consentement)
+  var t = document.createElement('script');
+  t.src = 'tracker.js';
+  t.defer = true;
+  document.body.appendChild(t);
 });
