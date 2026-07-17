@@ -892,7 +892,7 @@ function closeFicheModal() {
 }
 
 /* ── Keyboard / click-out ── */
-document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeFicheModal(); closeCredsModal(); } });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeFicheModal(); closeCredsModal(); if (typeof closeSeoModal==='function') closeSeoModal(); } });
 document.getElementById('fiche-overlay').addEventListener('click', e => {
   if (e.target === document.getElementById('fiche-overlay')) closeFicheModal();
 });
@@ -1050,9 +1050,12 @@ function renderChart(){
 }
 window.addEventListener('resize', ()=>{ if(statsSub==='overview' && document.getElementById('ov-chart')) renderChart(); });
 
+let seoPages = {};
 async function renderSeo(panel){
   const r = await apiStats('seo');
+  seoPages = {};
   const rows = r.pages.map(p=>{
+    seoPages[p.file] = p;
     const cls=p.score>=80?'ok':(p.score>=55?'mid':'bad');
     const issues=p.issues.length ? p.issues.map(i=>`<span class="seo-issue ${i.lvl==='err'?'err':'warn'}">${esc(i.msg)}</span>`).join('') : '<span style="color:#16a34a;font-size:.75rem;">✓ OK</span>';
     return `<tr>
@@ -1061,14 +1064,103 @@ async function renderSeo(panel){
       <td style="max-width:240px;">${esc(p.description||'—')}<br><span style="font-size:.7rem;color:${p.descLen>=70&&p.descLen<=160?'#16a34a':'#B91C1C'}">${p.descLen} car.</span></td>
       <td>${p.indexable?'✅':'🚫'}</td>
       <td><span class="seo-badge ${cls}">${p.score}/100</span></td>
-      <td>${issues}</td></tr>`;
+      <td>${issues}</td>
+      <td><button class="abtn abtn-outline abtn-sm" onclick="openSeoEdit('${esc(p.file)}')">✏️ Éditer</button></td></tr>`;
   }).join('');
   panel.innerHTML = `
     <div class="stats-card">
-      <h3>Inventaire SEO des pages publiques (${r.pages.length})</h3>
-      <p style="font-size:.78rem;color:var(--gray);margin-bottom:12px;">Le score est un <strong>indicateur interne d'aide à la vérification</strong>, pas une note officielle de Google. L'édition des métadonnées depuis cette interface arrivera dans une prochaine étape (voir docs).</p>
-      <div style="overflow-x:auto;"><table class="stats-table"><thead><tr><th>Page</th><th>Titre</th><th>Méta-description</th><th>Index</th><th>Score</th><th>Anomalies</th></tr></thead><tbody>${rows}</tbody></table></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+        <h3 style="margin:0;">Inventaire SEO des pages publiques (${r.pages.length})</h3>
+        <button class="abtn abtn-outline abtn-sm" onclick="loadStats()">↻ Re-scanner</button>
+      </div>
+      <p style="font-size:.78rem;color:var(--gray);margin:8px 0 12px;">Le score est un <strong>indicateur interne d'aide à la vérification</strong>, pas une note officielle de Google. Vous pouvez éditer les métadonnées du <code>&lt;head&gt;</code> (titre, description, Open Graph…) — le contenu visible de la page n'est jamais modifié.</p>
+      <div style="overflow-x:auto;"><table class="stats-table"><thead><tr><th>Page</th><th>Titre</th><th>Méta-description</th><th>Index</th><th>Score</th><th>Anomalies</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>
     </div>`;
+}
+
+/* ---- Édition SEO d'une page (écrit dans le <head> côté serveur) ---- */
+function ensureSeoModal(){
+  if (document.getElementById('seo-overlay')) return;
+  const div = document.createElement('div');
+  div.className = 'overlay'; div.id = 'seo-overlay';
+  div.innerHTML = `<div class="mbox" style="max-width:640px;">
+    <div class="mhdr"><h2 id="seo-m-title">Éditer le SEO</h2><button class="mclose" onclick="closeSeoModal()">✕</button></div>
+    <div class="mbody" id="seo-m-body"></div>
+    <div class="mfoot"><button class="abtn abtn-outline abtn-sm" onclick="closeSeoModal()">Annuler</button><button class="abtn abtn-primary abtn-sm" id="seo-m-save">Enregistrer &amp; publier</button></div>
+  </div>`;
+  document.body.appendChild(div);
+  div.addEventListener('click', e=>{ if(e.target===div) closeSeoModal(); });
+}
+function closeSeoModal(){ const o=document.getElementById('seo-overlay'); if(o) o.classList.remove('active'); }
+
+function openSeoEdit(file){
+  const p = seoPages[file]; if(!p){ toast('Page introuvable — re-scannez.','ko'); return; }
+  ensureSeoModal();
+  document.getElementById('seo-m-title').textContent = 'SEO — ' + file;
+  const robotsIndex  = p.indexable;
+  const robotsFollow = !/nofollow/i.test(p.robots||'');
+  document.getElementById('seo-m-body').innerHTML = `
+    <div class="afield"><label>Aperçu Google</label>
+      <div style="border:1px solid #E5E7EB;border-radius:10px;padding:12px 14px;background:#fff;">
+        <div id="sp-title" style="color:#1a0dab;font-size:1.05rem;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div>
+        <div style="color:#006621;font-size:.8rem;">ams-services-depannage.fr › ${esc(file)}</div>
+        <div id="sp-desc" style="color:#4d5156;font-size:.83rem;line-height:1.4;"></div>
+      </div>
+    </div>
+    <div class="afield"><label>Titre (balise title)</label>
+      <input id="seo-title" value="${esc(p.title||'')}" oninput="seoPreview()"><span id="seo-title-c" class="kpi-hint"></span></div>
+    <div class="afield"><label>Méta-description</label>
+      <textarea id="seo-desc" rows="3" oninput="seoPreview()">${esc(p.description||'')}</textarea><span id="seo-desc-c" class="kpi-hint"></span></div>
+    <div class="form-row">
+      <div class="afield"><label>Indexation Google</label>
+        <div class="radio-group"><label class="radio-opt"><input type="checkbox" id="seo-index" ${robotsIndex?'checked':''}> Indexable</label><label class="radio-opt"><input type="checkbox" id="seo-follow" ${robotsFollow?'checked':''}> Suivre les liens</label></div></div>
+      <div class="afield"><label>URL canonique</label><input id="seo-canon" value="${esc(p.canonical||'')}" placeholder="https://ams-services-depannage.fr/${esc(file)}"></div>
+    </div>
+    <hr class="divider">
+    <div class="afield"><label>Open Graph — Titre (partage réseaux sociaux)</label><input id="seo-ogt" value="${esc(p.ogTitle||'')}" placeholder="Repris du titre si vide"></div>
+    <div class="afield"><label>Open Graph — Description</label><input id="seo-ogd" value="${esc(p.ogDesc||'')}"></div>
+    <div class="afield"><label>Open Graph — Image</label>
+      <div style="display:flex;gap:8px;"><input id="seo-ogi" value="${esc(p.ogImage||'')}" placeholder="images/photo.jpg" style="flex:1;"><button type="button" class="abtn abtn-outline abtn-sm" onclick="uploadToField(document.getElementById('seo-ogi'))">📁</button></div></div>
+    <p style="font-size:.75rem;color:var(--gray);">Seul le &lt;head&gt; est modifié (invisible pour les visiteurs). Une sauvegarde de la version précédente est conservée automatiquement.</p>`;
+  document.getElementById('seo-m-save').onclick = ()=>saveSeo(file);
+  document.getElementById('seo-overlay').classList.add('active');
+  seoPreview();
+}
+
+function seoPreview(){
+  const t=document.getElementById('seo-title').value, d=document.getElementById('seo-desc').value;
+  document.getElementById('sp-title').textContent = t || '(titre)';
+  document.getElementById('sp-desc').textContent  = d || '(description)';
+  const tc=document.getElementById('seo-title-c'), dc=document.getElementById('seo-desc-c');
+  tc.textContent = `${t.length} caractères ${t.length>=30&&t.length<=65?'✓ idéal 30–65':'(idéal 30–65)'}`;
+  tc.style.color = (t.length>=30&&t.length<=65)?'#16a34a':'#B91C1C';
+  dc.textContent = `${d.length} caractères ${d.length>=70&&d.length<=160?'✓ idéal 70–160':'(idéal 70–160)'}`;
+  dc.style.color = (d.length>=70&&d.length<=160)?'#16a34a':'#B91C1C';
+}
+
+async function saveSeo(file){
+  const pw = sessionStorage.getItem('ams_pw_plain') || '';
+  if(!pw){ toast('Reconnectez-vous pour enregistrer.','ko'); return; }
+  const idx=document.getElementById('seo-index').checked, fol=document.getElementById('seo-follow').checked;
+  const fields = {
+    title: document.getElementById('seo-title').value.trim(),
+    description: document.getElementById('seo-desc').value.trim(),
+    canonical: document.getElementById('seo-canon').value.trim(),
+    robots: (idx?'index':'noindex')+', '+(fol?'follow':'nofollow'),
+    ogTitle: document.getElementById('seo-ogt').value.trim(),
+    ogDescription: document.getElementById('seo-ogd').value.trim(),
+    ogImage: document.getElementById('seo-ogi').value.trim()
+  };
+  const btn=document.getElementById('seo-m-save'); btn.disabled=true; btn.textContent='⏳ Enregistrement…';
+  try{
+    const res=await fetch('api/seo-save.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pw,action:'save',file,fields})});
+    let json; try{ json=await res.json(); }catch{ json=null; }
+    if(res.ok && json && json.success){
+      toast(json.changed>0?`✅ SEO mis à jour (${json.changed} champ·s) — en ligne`:'Aucune modification à enregistrer','ok');
+      closeSeoModal(); if(statsSub==='seo') loadStats();
+    } else { toast('Échec : '+((json&&json.error)||'API indisponible'),'ko'); }
+  }catch(e){ toast('Enregistrement impossible (connexion/PHP).','ko'); }
+  finally{ btn.disabled=false; btn.textContent='Enregistrer & publier'; }
 }
 
 async function renderInterventions(panel){
