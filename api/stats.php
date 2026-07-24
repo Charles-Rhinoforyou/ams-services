@@ -180,6 +180,60 @@ switch ($action) {
     break;
   }
 
+  case 'geo': {
+    require_once __DIR__ . '/geoip.php';
+    $ev  = ams_apply_filters(ams_load_events($from, $to), $filters);
+    $cfg = ams_config();
+    $threshold = max(1, (int)$cfg['geo_threshold']);
+
+    $byCountry = []; $byRegion = []; $withGeo = 0;
+    foreach ($ev as $r) {
+      $cc = $r['cc'] ?? '';
+      if ($cc === '') continue;
+      $withGeo++;
+      $ctr = $r['ctr'] ?? $cc;
+      if (!isset($byCountry[$ctr])) $byCountry[$ctr] = ['label'=>$ctr,'cc'=>$cc,'visitors'=>[],'pageviews'=>0,'conversions'=>0];
+      if (($r['e'] ?? '') === 'page_view') { $byCountry[$ctr]['pageviews']++; $byCountry[$ctr]['visitors'][$r['vh'] ?? ''] = 1; }
+      if (in_array($r['e'] ?? '', AMS_CONVERSIONS, true)) $byCountry[$ctr]['conversions']++;
+
+      if ($cc === 'FR') {
+        $reg = ($r['reg'] ?? '') !== '' ? $r['reg'] : '(région inconnue)';
+        if (!isset($byRegion[$reg])) $byRegion[$reg] = ['label'=>$reg,'visitors'=>[],'pageviews'=>0,'conversions'=>0];
+        if (($r['e'] ?? '') === 'page_view') { $byRegion[$reg]['pageviews']++; $byRegion[$reg]['visitors'][$r['vh'] ?? ''] = 1; }
+        if (in_array($r['e'] ?? '', AMS_CONVERSIONS, true)) $byRegion[$reg]['conversions']++;
+      }
+    }
+
+    // Applique le seuil de confidentialité : les zones trop peu fréquentées sont masquées
+    $shape = function ($agg) use ($threshold) {
+      $rows = []; $maskedZones = 0; $maskedVisitors = 0;
+      foreach ($agg as $a) {
+        $v = count($a['visitors']);
+        if ($v < $threshold) { $maskedZones++; $maskedVisitors += $v; continue; }
+        $rows[] = [
+          'label' => $a['label'], 'visitors' => $v, 'pageviews' => $a['pageviews'],
+          'conversions' => $a['conversions'],
+          'convRate' => $a['pageviews'] > 0 ? round($a['conversions'] / $a['pageviews'] * 100, 1) : 0,
+        ];
+      }
+      usort($rows, fn($x, $y) => $y['visitors'] - $x['visitors']);
+      return [$rows, $maskedZones, $maskedVisitors];
+    };
+    [$countries, $mcZones, $mcVis] = $shape($byCountry);
+    [$regions,   $mrZones, $mrVis] = $shape($byRegion);
+
+    ams_json([
+      'success'   => true,
+      'dbInstalled' => ams_geoip_available(),
+      'hasGeo'    => $withGeo > 0,
+      'threshold' => $threshold,
+      'countries' => $countries,
+      'regions'   => $regions,
+      'masked'    => ['countryZones'=>$mcZones,'countryVisitors'=>$mcVis,'regionZones'=>$mrZones,'regionVisitors'=>$mrVis],
+    ]);
+    break;
+  }
+
   case 'seo': {
     ams_json(['success' => true, 'pages' => ams_seo_scan()]);
     break;

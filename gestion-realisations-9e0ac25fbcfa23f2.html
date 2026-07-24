@@ -969,7 +969,7 @@ async function loadStats(){
     else if (statsSub==='config')        await renderConfig(panel);
     else if (statsSub==='reco')          await renderReco(panel);
     else if (statsSub==='search')        renderNotConf(panel,'🔎','Google Search Console non connecté','Reliez l\'API Search Console côté serveur pour afficher impressions, clics, position moyenne et requêtes. Variables à configurer : GSC_CLIENT_EMAIL, GSC_PRIVATE_KEY, GSC_SITE_URL (voir docs/seo-analytics.md).');
-    else if (statsSub==='geo')           renderNotConf(panel,'🌍','Géolocalisation non configurée','La provenance géographique agrégée nécessite une base GeoIP ou Matomo côté serveur. Les données resteront agrégées, avec un seuil de confidentialité masquant les zones à faible volume. Voir docs/seo-analytics.md.');
+    else if (statsSub==='geo')           await renderGeo(panel);
   } catch(e){
     panel.innerHTML = `<div class="notconf"><div class="eicon">⚠️</div><h3>Impossible de charger les données</h3><p>${esc(e.message||'Erreur')}</p><p style="font-size:.78rem;">Si vous venez de vous reconnecter, cliquez ↻ Actualiser. Le tableau de bord fonctionne uniquement sur le site en ligne OVH (PHP requis).</p></div>`;
   }
@@ -1205,6 +1205,87 @@ async function renderReco(panel){
       <div style="font-size:.84rem;margin:4px 0;">${esc(c.reason)}</div>
       <div style="font-size:.82rem;color:var(--blue);">→ ${esc(c.action)}</div>
     </div>`).join('')}</div>`;
+}
+
+/* ---- Géographie (MaxMind GeoLite2 auto-hébergé) ---- */
+async function apiGeoip(action, extra){
+  const pw = sessionStorage.getItem('ams_pw_plain') || '';
+  const res = await fetch('api/geoip-update.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign({password:pw,action},extra||{}))});
+  let json; try{ json=await res.json(); }catch{ throw new Error('Réponse invalide (API PHP indisponible ?)'); }
+  if(!res.ok || !json.success) throw new Error(json && json.error ? json.error : 'Erreur serveur');
+  return json;
+}
+
+async function renderGeo(panel){
+  let st=null, geo=null, err='';
+  try { st  = await apiGeoip('status'); } catch(e){ err=e.message; }
+  try { geo = await apiStats('geo'); }    catch(e){ if(!err) err=e.message; }
+
+  const setup = `
+    <div class="stats-card">
+      <h3>🌍 Base de géolocalisation (MaxMind GeoLite2 — gratuite)</h3>
+      <p style="font-size:.8rem;color:var(--gray);line-height:1.6;">
+        La localisation est <strong>approximative et agrégée</strong>. L'adresse IP sert uniquement, au moment de la visite, à déduire le pays/la région : elle n'est <strong>jamais enregistrée</strong>.
+        Créez un compte gratuit sur <strong>maxmind.com</strong>, générez une <em>license key</em>, collez-la ci-dessous, puis lancez la mise à jour.
+      </p>
+      <div class="form-row" style="margin-top:10px;">
+        <div class="afield form-full"><label>Clé de licence MaxMind${st&&st.hasKey?' — enregistrée ('+esc(st.keyMask)+')':''}</label>
+          <input id="geo-key" type="password" placeholder="${st&&st.hasKey?'•••••• (laisser vide pour conserver)':'Collez votre license key'}"></div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="abtn abtn-primary abtn-sm" onclick="saveGeoKey()">Enregistrer la clé</button>
+        <button class="abtn abtn-green abtn-sm" onclick="updateGeoDb()" ${st&&st.hasKey?'':'disabled style="opacity:.5"'}>⬇ Télécharger / mettre à jour la base</button>
+        <button class="abtn abtn-outline abtn-sm" onclick="testGeoDb()" ${st&&st.hasDb?'':'disabled style="opacity:.5"'}>🧪 Tester</button>
+      </div>
+      <p style="font-size:.78rem;margin-top:10px;color:${st&&st.hasDb?'#16a34a':'#B91C1C'};">
+        ${st ? (st.hasDb ? '✅ Base installée — '+(st.dbSize/1048576).toFixed(1)+' Mo, mise à jour le '+esc(st.dbDate) : '⚠️ Base non installée') : '⚠️ Statut indisponible'}
+      </p>
+      <p style="font-size:.72rem;color:var(--gray);">Si le téléchargement échoue (limites du serveur mutualisé), déposez le fichier <code>GeoLite2-City.mmdb</code> par FTP dans <code>www/stats-data/geoip/</code>.</p>
+    </div>`;
+
+  let data='';
+  if (err && !geo) {
+    data = `<div class="notconf"><div class="eicon">⚠️</div><h3>Données indisponibles</h3><p>${esc(err)}</p></div>`;
+  } else if (geo && !geo.dbInstalled) {
+    data = `<div class="notconf"><div class="eicon">🌍</div><h3>Base non installée</h3><p>Installez la base ci-dessus pour commencer à collecter la provenance géographique. Les visites déjà enregistrées n'auront pas cette information.</p></div>`;
+  } else if (geo && !geo.hasGeo) {
+    data = `<div class="notconf"><div class="eicon">⏳</div><h3>En attente de visites localisées</h3><p>La base est installée. Les pays et régions apparaîtront dès que de nouveaux visiteurs (ayant accepté les cookies) navigueront sur le site.</p></div>`;
+  } else if (geo) {
+    const m = geo.masked||{};
+    data = `
+      <div class="stats-2col">
+        <div class="stats-card"><h3>Pays</h3>${geoTable(geo.countries)}${m.countryZones?'<p style="font-size:.74rem;color:var(--gray);margin-top:8px;">🔒 '+m.countryZones+' zone(s) masquée(s) — moins de '+geo.threshold+' visiteurs.</p>':''}</div>
+        <div class="stats-card"><h3>Régions françaises</h3>${geoTable(geo.regions)}${m.regionZones?'<p style="font-size:.74rem;color:var(--gray);margin-top:8px;">🔒 '+m.regionZones+' zone(s) masquée(s) — moins de '+geo.threshold+' visiteurs.</p>':''}</div>
+      </div>
+      <p style="font-size:.76rem;color:var(--gray);">Localisation <strong>approximative</strong> (déduite de l'IP) et <strong>agrégée</strong>. Seuil de confidentialité : ${geo.threshold} visiteurs (modifiable dans Configuration &amp; RGPD).</p>`;
+  }
+  panel.innerHTML = setup + data;
+}
+
+function geoTable(rows){
+  if(!rows||!rows.length) return '<p style="font-size:.82rem;color:var(--gray);">Aucune donnée sur la période (ou tout est sous le seuil de confidentialité).</p>';
+  return `<div style="overflow-x:auto;"><table class="stats-table"><thead><tr><th>Zone</th><th>Visiteurs</th><th>Pages vues</th><th>Conv.</th><th>Taux</th></tr></thead><tbody>${
+    rows.map(r=>`<tr><td><strong>${esc(r.label)}</strong></td><td>${fmtInt(r.visitors)}</td><td>${fmtInt(r.pageviews)}</td><td>${fmtInt(r.conversions)}</td><td>${r.convRate} %</td></tr>`).join('')
+  }</tbody></table></div>`;
+}
+
+async function saveGeoKey(){
+  const k=document.getElementById('geo-key').value.trim();
+  if(!k){ toast('Saisissez une clé de licence.','ko'); return; }
+  try{ await apiGeoip('set-key',{key:k}); toast('Clé enregistrée ✓','ok'); loadStats(); }
+  catch(e){ toast('Échec : '+e.message,'ko'); }
+}
+async function updateGeoDb(){
+  if(!confirm('Télécharger la base GeoLite2 (~40 Mo) depuis MaxMind ? Cela peut prendre une minute.')) return;
+  toast('⏳ Téléchargement de la base en cours…');
+  try{ const r=await apiGeoip('update'); toast('✅ Base installée ('+(r.size/1048576).toFixed(1)+' Mo)','ok'); loadStats(); }
+  catch(e){ toast('Échec : '+e.message,'ko'); }
+}
+async function testGeoDb(){
+  try{
+    const r=await apiGeoip('test'); const s=r.self||{}, ref=r.reference||{};
+    alert('Test du lecteur GeoIP\n\nVotre connexion : '+(s.country||'?')+(s.region?' / '+s.region:'')+'\nIP de référence (8.8.8.8) : '+(ref.country||'?'));
+  }catch(e){ toast('Test échoué : '+e.message,'ko'); }
 }
 
 async function renderConfig(panel){

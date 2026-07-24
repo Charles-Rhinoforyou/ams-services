@@ -7,6 +7,7 @@
    ============================================================ */
 
 require __DIR__ . '/_common.php';
+require __DIR__ . '/geoip.php';
 
 // CORS : même origine uniquement (pas d'en-tête permissif)
 if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
@@ -61,6 +62,14 @@ $rec = [
   'ref'   => ams_clean(parse_url((string)($body['referrer'] ?? ''), PHP_URL_HOST) ?: '', 80),
   'vh'    => ams_visitor_hash(),
 ];
+
+/* Géolocalisation approximative : l'IP est utilisée ici de façon
+   TRANSITOIRE puis abandonnée. Seuls pays/région agrégés sont conservés. */
+if (($geo = ams_geo_lookup(ams_client_ip())) !== null) {
+  $rec['cc']  = ams_clean($geo['cc'], 4);
+  $rec['reg'] = ams_clean($geo['region'], 60);
+  $rec['ctr'] = ams_clean($geo['country'], 60);
+}
 
 $file = ams_data_dir() . '/events-' . gmdate('Y-m') . '.ndjson';
 @file_put_contents(
