@@ -64,7 +64,12 @@ onglet SEO & Stats ──POST(mdp)──►  api/stats.php  ──►  lit stats
 ## 7. Search Console / Géographie (Phase suivante, « Non configuré »)
 
 - **Search Console** : prévoir un `api/search-console.php` (compte de service Google, variables `GSC_*` de `.env.example`) interrogé **uniquement côté serveur**. L'onglet affiche un état « Non configuré » propre tant que ce n'est pas branché.
-- **Géographie** : nécessite une base GeoIP (ou Matomo). Prévu avec seuil de confidentialité (masquage des zones < N visiteurs). Onglet en « Non configuré » pour l'instant — **aucune fausse donnée** n'est affichée.
+- **Géographie** : ✅ **implémentée** via **MaxMind GeoLite2 auto-hébergé** (gratuit, aucune donnée envoyée à un tiers).
+  - `api/geoip.php` : lecteur MMDB **100 % PHP** (aucune extension requise). `ams_geo_lookup($ip)` → pays/région ; renvoie `null` et n'interrompt jamais la collecte si la base est absente.
+  - `api/geoip-update.php` (protégé) : `status`, `set-key`, `update`, `test`. La **clé de licence** est stockée dans `stats-data/geoip/license.txt` (dossier privé, `chmod 600`) et **jamais renvoyée en clair**. Le téléchargement + l'extraction `tar.gz` se font **en streaming** (mémoire maîtrisée), avec **validation de la base avant remplacement**.
+  - Collecte : dans `track.php`, l'IP est utilisée de façon **transitoire** pour déduire pays/région, **puis jetée** (jamais stockée).
+  - Restitution : `stats.php action=geo` agrège par pays et par région française, avec **seuil de confidentialité** (zones sous le seuil masquées et comptabilisées à part).
+  - **Mise en route** : compte gratuit sur maxmind.com → *license key* → la coller dans l'onglet Géographie → « Télécharger la base ». Repli possible : déposer `GeoLite2-City.mmdb` par FTP dans `www/stats-data/geoip/`.
 
 ## 8. Recommandation sécurité — migration vers une vraie session serveur
 
