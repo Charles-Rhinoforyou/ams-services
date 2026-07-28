@@ -297,6 +297,7 @@
         <div class="sec-item"        data-sub="interventions" onclick="statsNav('interventions')"><span class="si-icon">🛠️</span><span class="si-name">Interventions</span></div>
         <div class="sec-item"        data-sub="conversions"   onclick="statsNav('conversions')"><span class="si-icon">🎯</span><span class="si-name">Conversions</span></div>
         <div class="sec-item"        data-sub="search"        onclick="statsNav('search')"><span class="si-icon">🔎</span><span class="si-name">Recherche Google</span></div>
+        <div class="sec-item"        data-sub="keywords"      onclick="statsNav('keywords')"><span class="si-icon">🔑</span><span class="si-name">Mots-clés &amp; positions</span></div>
         <div class="sec-item"        data-sub="geo"           onclick="statsNav('geo')"><span class="si-icon">🌍</span><span class="si-name">Géographie</span></div>
         <div class="sec-item"        data-sub="aigeo"         onclick="statsNav('aigeo')"><span class="si-icon">🤖</span><span class="si-name">GEO — IA générative</span></div>
         <div class="sec-item"        data-sub="reco"          onclick="statsNav('reco')"><span class="si-icon">💡</span><span class="si-name">Recommandations</span></div>
@@ -971,6 +972,7 @@ async function loadStats(){
     else if (statsSub==='aigeo')         await renderAigeo(panel);
     else if (statsSub==='reco')          await renderReco(panel);
     else if (statsSub==='search')        await renderSearch(panel);
+    else if (statsSub==='keywords')      await renderKeywords(panel);
     else if (statsSub==='geo')           await renderGeo(panel);
   } catch(e){
     panel.innerHTML = `<div class="notconf"><div class="eicon">⚠️</div><h3>Impossible de charger les données</h3><p>${esc(e.message||'Erreur')}</p><p style="font-size:.78rem;">Si vous venez de vous reconnecter, cliquez ↻ Actualiser. Le tableau de bord fonctionne uniquement sur le site en ligne OVH (PHP requis).</p></div>`;
@@ -1271,6 +1273,80 @@ async function renderAigeo(panel){
   const recoCard = recoList ? `<div class="stats-card"><h3>💡 Actions GEO prioritaires</h3>${recoList}</div>` : '';
 
   panel.innerHTML = intro + assets + recoCard + table;
+}
+
+/* ---- Mots-clés & positions (via Search Console) ---- */
+function posBadge(p){
+  if (p===null || p===undefined) return '<span class="seo-badge gray" style="background:#F1F5F9;color:#6B7280">non positionné</span>';
+  const cls = p<=3 ? 'ok' : (p<=10 ? 'mid' : 'bad');
+  return `<span class="seo-badge ${cls}">${p}</span>`;
+}
+async function renderKeywords(panel){
+  let st=null;
+  try { st = await apiGsc('status'); } catch(e){ panel.innerHTML=`<div class="notconf"><div class="eicon">⚠️</div><p>${esc(e.message)}</p></div>`; return; }
+  if (!st || !st.configured){
+    panel.innerHTML = `<div class="notconf"><div class="eicon">🔑</div><h3>Positions non disponibles</h3><p>Le classement par mots-clés provient de Google Search Console. Connectez d'abord Search Console dans l'onglet <strong>« Recherche Google »</strong>, puis revenez ici.</p><p style="font-size:.8rem;">C'est la seule source fiable de votre position réelle sur Google (une vérification « en direct » n'est pas autorisée par Google).</p></div>`;
+    return;
+  }
+  panel.innerHTML = '<div class="empty"><div class="eicon">⏳</div><p>Récupération de vos positions Google…</p></div>';
+  let d;
+  try { d = await apiGsc('keywords'); }
+  catch(e){ panel.innerHTML=`<div class="notconf"><div class="eicon">⚠️</div><h3>Données Google indisponibles</h3><p>${esc(e.message)}</p></div>`; return; }
+
+  const bk = d.buckets||{};
+  const kpis = `<div class="kpi-grid">
+    ${kpi('🔑 Mots-clés positionnés', d.total)}
+    ${kpi('🏅 Position moyenne', d.avg, undefined, 'Position idéale : la plus basse possible')}
+    ${kpi('🥇 En top 3', bk.top3||0)}
+    ${kpi('📄 En 1re page (top 10)', (bk.top3||0)+(bk.top10||0))}
+  </div>`;
+
+  const tRows = (d.targets||[]).map(t=>`
+    <tr>
+      <td><strong>${esc(t.keyword)}</strong>${t.found && t.matchedQuery && t.matchedQuery.toLowerCase()!==t.keyword.toLowerCase()?`<br><span style="font-size:.7rem;color:var(--gray)">vu comme : ${esc(t.matchedQuery)}</span>`:''}</td>
+      <td style="text-align:center">${posBadge(t.position)}</td>
+      <td style="text-align:center">${fmtInt(t.clicks)}</td>
+      <td style="text-align:center">${fmtInt(t.impressions)}</td>
+      <td style="text-align:center">${t.found?t.ctr+' %':'—'}</td>
+    </tr>`).join('');
+
+  const qRows = (d.queries||[]).map(q=>`
+    <tr><td>${esc(q.query)}</td><td style="text-align:center">${posBadge(q.position)}</td><td style="text-align:center">${fmtInt(q.clicks)}</td><td style="text-align:center">${fmtInt(q.impressions)}</td><td style="text-align:center">${q.ctr} %</td></tr>`).join('')
+    || '<tr><td colspan="5" style="color:var(--gray)">Aucune requête sur la période.</td></tr>';
+
+  panel.innerHTML = kpis
+    + `<p style="font-size:.76rem;color:var(--gray);margin:-8px 0 14px;">Positions issues de Google Search Console (période ${esc(d.range.from)} → ${esc(d.range.to)}, ~3 jours de latence). Un mot-clé n'apparaît que s'il a généré des impressions. <span style="color:#16a34a">vert = top 3</span>, <span style="color:#92400E">orange = top 10</span>, <span style="color:#B91C1C">rouge = au-delà</span>.</p>`
+    + `<div class="stats-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+          <h3 style="margin:0;">🎯 Vos mots-clés cibles (les plus probables)</h3>
+          <button class="abtn abtn-outline abtn-sm" onclick="editKeywords()">✏️ Modifier la liste</button>
+        </div>
+        <p style="font-size:.78rem;color:var(--gray);margin:8px 0 12px;">Votre position sur les recherches que vos clients tapent le plus probablement. « Non positionné » = pas (encore) de données Google, ou vous n'apparaissez pas sur cette période.</p>
+        <div style="overflow-x:auto;"><table class="stats-table"><thead><tr><th>Mot-clé cible</th><th>Position</th><th>Clics</th><th>Impressions</th><th>CTR</th></tr></thead><tbody>${tRows}</tbody></table></div>
+      </div>`
+    + `<div class="stats-card">
+        <h3>Toutes vos requêtes Google (top ${(d.queries||[]).length})</h3>
+        <div style="overflow-x:auto;"><table class="stats-table"><thead><tr><th>Requête réelle</th><th>Position</th><th>Clics</th><th>Impressions</th><th>CTR</th></tr></thead><tbody>${qRows}</tbody></table></div>
+      </div>`;
+}
+
+async function editKeywords(){
+  let list = [];
+  try { const r = await apiGsc('get-keywords'); list = r.keywords||[]; } catch(e){ toast('Impossible de charger la liste','ko'); return; }
+  ensureSeoModal(); // réutilise l'overlay générique
+  const ov = document.getElementById('seo-overlay');
+  document.getElementById('seo-m-title').textContent = 'Mots-clés cibles';
+  document.getElementById('seo-m-body').innerHTML = `
+    <div class="afield"><label>Un mot-clé par ligne (les recherches les plus probables de vos clients)</label>
+      <textarea id="kw-list" rows="12" style="font-family:inherit;">${esc(list.join('\n'))}</textarea></div>
+    <p style="font-size:.78rem;color:var(--gray);">Exemples : « plombier chambéry », « serrurier urgence annecy », « dépannage 24h/24 savoie »… Ces mots-clés sont comparés à vos données réelles Google.</p>`;
+  document.getElementById('seo-m-save').textContent = 'Enregistrer la liste';
+  document.getElementById('seo-m-save').onclick = async ()=>{
+    const kw = document.getElementById('kw-list').value.split('\n').map(s=>s.trim()).filter(Boolean);
+    try { await apiGsc('set-keywords',{keywords:kw}); toast('Liste enregistrée ✓','ok'); closeSeoModal(); document.getElementById('seo-m-save').textContent='Enregistrer & publier'; if(statsSub==='keywords') loadStats(); }
+    catch(e){ toast('Échec : '+e.message,'ko'); }
+  };
+  ov.classList.add('active');
 }
 
 /* ---- Recherche Google (Search Console) ---- */
