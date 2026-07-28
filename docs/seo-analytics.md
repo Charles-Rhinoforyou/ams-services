@@ -63,7 +63,8 @@ onglet SEO & Stats ──POST(mdp)──►  api/stats.php  ──►  lit stats
 
 ## 7. Search Console / Géographie (Phase suivante, « Non configuré »)
 
-- **Search Console** : prévoir un `api/search-console.php` (compte de service Google, variables `GSC_*` de `.env.example`) interrogé **uniquement côté serveur**. L'onglet affiche un état « Non configuré » propre tant que ce n'est pas branché.
+- **Search Console** : ✅ **implémentée** — `api/search-console.php` (protégé). Auth par **compte de service Google** (JWT RS256 signé via `openssl_sign`), jeton d'accès mis en cache (~55 min), appels `searchAnalytics/query`. Identifiants Google stockés dans `stats-data/gsc/config.json` (privé, `chmod 600`), **jamais renvoyés au navigateur**. Actions : `status | set-config | clear | test | query`. L'onglet affiche KPIs (clics/impressions/CTR/position), requêtes & pages principales, et des **opportunités SEO** (croisement impressions/CTR/position). État « Non connecté » propre sinon.
+  - **Mise en route** : Google Cloud → compte de service → activer l'API Search Console → télécharger la clé JSON → dans Search Console, ajouter l'e-mail du compte de service comme utilisateur de la propriété → coller le JSON + l'URL dans l'onglet Recherche Google.
 - **Géographie** : ✅ **implémentée** via **MaxMind GeoLite2 auto-hébergé** (gratuit, aucune donnée envoyée à un tiers).
   - `api/geoip.php` : lecteur MMDB **100 % PHP** (aucune extension requise). `ams_geo_lookup($ip)` → pays/région ; renvoie `null` et n'interrompt jamais la collecte si la base est absente.
   - `api/geoip-update.php` (protégé) : `status`, `set-key`, `update`, `test`. La **clé de licence** est stockée dans `stats-data/geoip/license.txt` (dossier privé, `chmod 600`) et **jamais renvoyée en clair**. Le téléchargement + l'extraction `tar.gz` se font **en streaming** (mémoire maîtrisée), avec **validation de la base avant remplacement**.
