@@ -294,14 +294,16 @@ function ams_seo_scan() {
     if ($html === false) continue;
 
     $get = function ($re) use ($html) { return preg_match($re, $html, $m) ? trim(html_entity_decode($m[1], ENT_QUOTES)) : ''; };
+    // Extraction d'attribut avec guillemet apparié (backreference) : ne coupe plus sur une apostrophe interne
+    $attr = function ($re) use ($html) { return preg_match($re, $html, $m) ? trim(html_entity_decode($m[2], ENT_QUOTES)) : ''; };
 
     $title  = $get('/<title[^>]*>(.*?)<\/title>/is');
-    $desc   = $get('/<meta[^>]+name=["\']description["\'][^>]+content=["\'](.*?)["\']/is');
-    $canon  = $get('/<link[^>]+rel=["\']canonical["\'][^>]+href=["\'](.*?)["\']/is');
-    $robots = $get('/<meta[^>]+name=["\']robots["\'][^>]+content=["\'](.*?)["\']/is');
-    $ogT    = $get('/<meta[^>]+property=["\']og:title["\'][^>]+content=["\'](.*?)["\']/is');
-    $ogD    = $get('/<meta[^>]+property=["\']og:description["\'][^>]+content=["\'](.*?)["\']/is');
-    $ogI    = $get('/<meta[^>]+property=["\']og:image["\'][^>]+content=["\'](.*?)["\']/is');
+    $desc   = $attr('/<meta[^>]+name=["\']description["\'][^>]*content=(["\'])(.*?)\1/is');
+    $canon  = $attr('/<link[^>]+rel=["\']canonical["\'][^>]*href=(["\'])(.*?)\1/is');
+    $robots = $attr('/<meta[^>]+name=["\']robots["\'][^>]*content=(["\'])(.*?)\1/is');
+    $ogT    = $attr('/<meta[^>]+property=["\']og:title["\'][^>]*content=(["\'])(.*?)\1/is');
+    $ogD    = $attr('/<meta[^>]+property=["\']og:description["\'][^>]*content=(["\'])(.*?)\1/is');
+    $ogI    = $attr('/<meta[^>]+property=["\']og:image["\'][^>]*content=(["\'])(.*?)\1/is');
     preg_match_all('/<h1[^>]*>(.*?)<\/h1>/is', $html, $h1m);
     $h1count = count($h1m[1]);
     $h1 = $h1count ? trim(preg_replace('/\s+/', ' ', strip_tags($h1m[1][0]))) : '';
