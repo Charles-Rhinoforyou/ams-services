@@ -156,10 +156,10 @@ function renderFooter() {
       </div>
       <div class="footer-bottom">
         <span>© 2026 AMS'SERVICES — Tous droits réservés</span>
-        <div style="display:flex;gap:20px">
-          <a href="#">Mentions légales</a>
-          <a href="#">Politique de confidentialité</a>
-          <a href="#">Cookies</a>
+        <div style="display:flex;gap:20px;flex-wrap:wrap">
+          <a href="confidentialite.html">Mentions légales</a>
+          <a href="confidentialite.html">Politique de confidentialité</a>
+          <a href="#" onclick="amsManageConsent();return false;">Gérer les cookies</a>
         </div>
       </div>
       <div class="footer-credit">
@@ -227,13 +227,25 @@ function renderFloatingBtns() {
 function renderCookieBanner() {
   return `
   <div class="cookie-banner" id="cookie-banner" role="dialog" aria-label="Cookies">
-    <p class="cookie-text">Nous utilisons des cookies pour améliorer votre expérience. <a href="#">Politique de confidentialité</a>.</p>
+    <p class="cookie-text">Nous utilisons une mesure d'audience anonyme pour améliorer votre expérience. Vous pouvez l'accepter ou la refuser. <a href="confidentialite.html">Politique de confidentialité</a>.</p>
     <div class="cookie-btns">
       <button class="cookie-accept" id="cookie-accept">Accepter</button>
       <button class="cookie-refuse" id="cookie-refuse">Refuser</button>
     </div>
   </div>`;
 }
+
+// Ré-ouvre la bannière pour gérer / retirer le consentement (lien discret du footer)
+window.amsManageConsent = function () {
+  const b = document.getElementById('cookie-banner');
+  if (!b) return;
+  const c = localStorage.getItem('cookie-consent');
+  const acc = document.getElementById('cookie-accept'), ref = document.getElementById('cookie-refuse');
+  if (acc) acc.textContent = c === 'accepted' ? '✓ Accepté' : 'Accepter';
+  if (ref) ref.textContent = c === 'refused' ? '✓ Refusé' : 'Refuser';
+  b.classList.add('show');
+  b.scrollIntoView({ behavior: 'smooth', block: 'end' });
+};
 
 /* ---- Init common JS behaviors ---- */
 function initCommon() {
@@ -281,6 +293,13 @@ function initCommon() {
   }
   document.getElementById('cookie-accept')?.addEventListener('click', () => { localStorage.setItem('cookie-consent','accepted'); document.getElementById('cookie-banner').classList.remove('show'); window.dispatchEvent(new Event('ams-consent-accepted')); });
   document.getElementById('cookie-refuse')?.addEventListener('click', () => { localStorage.setItem('cookie-consent','refused'); document.getElementById('cookie-banner').classList.remove('show'); });
+
+  // Affiche l'état courant du consentement dans la bannière quand on la ré-ouvre
+  const consentNow = localStorage.getItem('cookie-consent');
+  if (consentNow) {
+    const acc = document.getElementById('cookie-accept'), ref = document.getElementById('cookie-refuse');
+    if (acc && ref) { acc.textContent = consentNow === 'accepted' ? '✓ Accepté' : 'Accepter'; ref.textContent = consentNow === 'refused' ? '✓ Refusé' : 'Refuser'; }
+  }
 
   // Floating devis modal
   const devisOpen    = document.getElementById('float-devis-open');
