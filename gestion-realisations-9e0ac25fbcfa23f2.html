@@ -968,7 +968,7 @@ async function loadStats(){
     else if (statsSub==='conversions')   await renderConversions(panel);
     else if (statsSub==='config')        await renderConfig(panel);
     else if (statsSub==='reco')          await renderReco(panel);
-    else if (statsSub==='search')        renderNotConf(panel,'🔎','Google Search Console non connecté','Reliez l\'API Search Console côté serveur pour afficher impressions, clics, position moyenne et requêtes. Variables à configurer : GSC_CLIENT_EMAIL, GSC_PRIVATE_KEY, GSC_SITE_URL (voir docs/seo-analytics.md).');
+    else if (statsSub==='search')        await renderSearch(panel);
     else if (statsSub==='geo')           await renderGeo(panel);
   } catch(e){
     panel.innerHTML = `<div class="notconf"><div class="eicon">⚠️</div><h3>Impossible de charger les données</h3><p>${esc(e.message||'Erreur')}</p><p style="font-size:.78rem;">Si vous venez de vous reconnecter, cliquez ↻ Actualiser. Le tableau de bord fonctionne uniquement sur le site en ligne OVH (PHP requis).</p></div>`;
@@ -1205,6 +1205,87 @@ async function renderReco(panel){
       <div style="font-size:.84rem;margin:4px 0;">${esc(c.reason)}</div>
       <div style="font-size:.82rem;color:var(--blue);">→ ${esc(c.action)}</div>
     </div>`).join('')}</div>`;
+}
+
+/* ---- Recherche Google (Search Console) ---- */
+async function apiGsc(action, extra){
+  const pw = sessionStorage.getItem('ams_pw_plain') || '';
+  const res = await fetch('api/search-console.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign({password:pw,action},extra||{}))});
+  let json; try{ json=await res.json(); }catch{ throw new Error('Réponse invalide (API PHP indisponible ?)'); }
+  if(!res.ok || !json.success) throw new Error(json && json.error ? json.error : 'Erreur serveur');
+  return json;
+}
+
+async function renderSearch(panel){
+  let st=null, err='';
+  try { st = await apiGsc('status'); } catch(e){ err=e.message; }
+
+  const configCard = `
+    <div class="stats-card">
+      <h3>🔎 Connexion à Google Search Console</h3>
+      <p style="font-size:.8rem;color:var(--gray);line-height:1.6;">
+        Reliez votre propriété Search Console via un <strong>compte de service Google</strong> (gratuit). Les identifiants restent <strong>sur votre serveur</strong>, jamais dans le navigateur.
+        Étapes : Google Cloud → créez un compte de service → activez l'API « Search Console » → téléchargez sa clé <strong>JSON</strong> → dans Search Console, ajoutez l'adresse e-mail du compte de service comme <strong>utilisateur autorisé</strong> de la propriété.
+      </p>
+      ${st && st.configured ? `<p style="font-size:.82rem;color:#16a34a;">✅ Configuré — compte <code>${esc(st.clientEmail)}</code>, propriété <code>${esc(st.siteUrl)}</code></p>` : ''}
+      <div class="afield" style="margin-top:8px;"><label>Contenu du fichier JSON du compte de service</label>
+        <textarea id="gsc-json" rows="4" placeholder='{ "type": "service_account", "client_email": "...", "private_key": "-----BEGIN PRIVATE KEY-----\\n..." }'></textarea></div>
+      <div class="afield"><label>URL de la propriété (ex : https://ams-services-depannage.fr/ ou sc-domain:ams-services-depannage.fr)</label>
+        <input id="gsc-site" value="${st && st.siteUrl ? esc(st.siteUrl) : 'https://ams-services-depannage.fr/'}"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;">
+        <button class="abtn abtn-primary abtn-sm" onclick="saveGscConfig()">Enregistrer la connexion</button>
+        <button class="abtn abtn-outline abtn-sm" onclick="testGsc()" ${st&&st.configured?'':'disabled style="opacity:.5"'}>🧪 Tester</button>
+        ${st&&st.configured?'<button class="abtn abtn-danger abtn-sm" onclick="clearGsc()">Déconnecter</button>':''}
+      </div>
+      ${st && st.hasOpenssl===false ? '<p style="font-size:.78rem;color:#B91C1C;margin-top:8px;">⚠️ L\'extension openssl semble indisponible sur le serveur — la connexion Google ne pourra pas signer les requêtes.</p>' : ''}
+    </div>`;
+
+  if (!st || !st.configured) {
+    panel.innerHTML = configCard + (err ? `<div class="notconf"><div class="eicon">⚠️</div><p>${esc(err)}</p></div>` : `<div class="notconf"><div class="eicon">🔎</div><h3>Non connecté</h3><p>Une fois la connexion configurée, vous verrez ici vos impressions, clics, CTR, position moyenne, requêtes et pages Google.</p></div>`);
+    return;
+  }
+
+  panel.innerHTML = configCard + '<div class="empty"><div class="eicon">⏳</div><p>Chargement des données Google…</p></div>';
+  let d;
+  try { d = await apiGsc('query'); }
+  catch(e){ panel.innerHTML = configCard + `<div class="notconf"><div class="eicon">⚠️</div><h3>Données Google indisponibles</h3><p>${esc(e.message)}</p><p style="font-size:.78rem;">Vérifiez que le compte de service est bien ajouté comme utilisateur de la propriété dans Search Console, et que l'URL de la propriété est exacte.</p></div>`; return; }
+
+  const t=d.totals;
+  const kpis = `<div class="kpi-grid">
+    ${kpi('👆 Clics', t.clicks)}${kpi('👁 Impressions', t.impressions)}
+    ${kpi('📈 CTR', t.ctr, undefined, 'Taux de clic moyen', ' %')}${kpi('🏅 Position moy.', t.position, undefined, 'Plus c\'est bas, mieux c\'est')}
+  </div>`;
+  const qRows = d.queries.map(q=>`<tr><td>${esc(q.key)}</td><td>${fmtInt(q.clicks)}</td><td>${fmtInt(q.impressions)}</td><td>${q.ctr} %</td><td>${q.position}</td></tr>`).join('') || '<tr><td colspan="5" style="color:var(--gray)">Aucune requête sur la période.</td></tr>';
+  const pRows = d.pages.map(p=>`<tr><td style="max-width:280px;overflow:hidden;text-overflow:ellipsis;"><a href="${esc(p.key)}" target="_blank" style="color:var(--blue)">${esc(p.key.replace(/^https?:\/\/[^/]+/,''))||'/'}</a></td><td>${fmtInt(p.clicks)}</td><td>${fmtInt(p.impressions)}</td><td>${p.ctr} %</td><td>${p.position}</td></tr>`).join('') || '<tr><td colspan="5" style="color:var(--gray)">Aucune page sur la période.</td></tr>';
+  const opps = d.opportunities.length ? `<div class="stats-card"><h3>💡 Opportunités SEO (croisement impressions / CTR / position)</h3>${
+    d.opportunities.map(o=>`<div style="border-left:4px solid #F9C200;background:#FFFBEB;border-radius:8px;padding:10px 12px;margin-bottom:8px;"><div style="font-size:.82rem;font-weight:600;word-break:break-all;">${esc(o.page.replace(/^https?:\/\/[^/]+/,'')||'/')}</div><div style="font-size:.82rem;color:#4B5563;">${esc(o.reason)}</div></div>`).join('')
+  }</div>` : '';
+
+  panel.innerHTML = configCard + kpis
+    + `<p style="font-size:.76rem;color:var(--gray);margin:-8px 0 14px;">Période Google : ${esc(d.range.from)} → ${esc(d.range.to)} (les données Google ont ~3 jours de latence).</p>`
+    + opps
+    + `<div class="stats-2col">
+        <div class="stats-card"><h3>Requêtes principales</h3><div style="overflow-x:auto;"><table class="stats-table"><thead><tr><th>Requête</th><th>Clics</th><th>Impr.</th><th>CTR</th><th>Pos.</th></tr></thead><tbody>${qRows}</tbody></table></div></div>
+        <div class="stats-card"><h3>Pages principales</h3><div style="overflow-x:auto;"><table class="stats-table"><thead><tr><th>Page</th><th>Clics</th><th>Impr.</th><th>CTR</th><th>Pos.</th></tr></thead><tbody>${pRows}</tbody></table></div></div>
+      </div>`;
+}
+
+async function saveGscConfig(){
+  const json=document.getElementById('gsc-json').value.trim();
+  const site=document.getElementById('gsc-site').value.trim();
+  if(!json){ toast('Collez le JSON du compte de service.','ko'); return; }
+  try{ await apiGsc('set-config',{serviceAccount:json,siteUrl:site}); toast('Connexion enregistrée ✓','ok'); loadStats(); }
+  catch(e){ toast('Échec : '+e.message,'ko'); }
+}
+async function testGsc(){
+  toast('⏳ Test de la connexion Google…');
+  try{ const r=await apiGsc('test'); toast('✅ '+(r.message||'Connexion OK'),'ok'); }
+  catch(e){ toast('Test échoué : '+e.message,'ko'); }
+}
+async function clearGsc(){
+  if(!confirm('Déconnecter Search Console et supprimer les identifiants du serveur ?')) return;
+  try{ await apiGsc('clear'); toast('Déconnecté','ok'); loadStats(); }
+  catch(e){ toast('Échec : '+e.message,'ko'); }
 }
 
 /* ---- Géographie (MaxMind GeoLite2 auto-hébergé) ---- */
