@@ -239,6 +239,11 @@ switch ($action) {
     break;
   }
 
+  case 'aigeo': {
+    ams_json(ams_geo_scan());
+    break;
+  }
+
   case 'config-get': {
     ams_json(['success' => true, 'config' => ams_config()]);
     break;
@@ -339,4 +344,87 @@ function ams_seo_scan() {
   unset($p);
   usort($pages, fn($a,$b)=>$a['score']-$b['score']);
   return $pages;
+}
+
+/* ============================================================
+   Scan GEO (Generative Engine Optimization) : dans quelle mesure
+   chaque page est prête à être comprise et citée par les IA
+   (ChatGPT, Google AI Overviews, Perplexity, Copilot...).
+   Règles transparentes, indicateur interne d'aide.
+   ============================================================ */
+function ams_geo_scan() {
+  $root = dirname(__DIR__);
+  $exclude = ['gestion-realisations-9e0ac25fbcfa23f2.html'];
+  $pages = [];
+  foreach (glob($root . '/*.html') as $file) {
+    $name = basename($file);
+    if (in_array($name, $exclude, true)) continue;
+    $html = @file_get_contents($file);
+    if ($html === false) continue;
+
+    // Corps sans <script>/<style> pour l'analyse de contenu
+    $body = preg_replace('/<script\b[^>]*>.*?<\/script>/is', ' ', $html);
+    $body = preg_replace('/<style\b[^>]*>.*?<\/style>/is', ' ', $body);
+    $text = trim(preg_replace('/\s+/', ' ', html_entity_decode(strip_tags($body), ENT_QUOTES)));
+    $words = $text === '' ? 0 : count(preg_split('/\s+/', $text));
+
+    $hasJsonLd = stripos($html, 'application/ld+json') !== false;
+    $hasFaqSchema = stripos($html, '"FAQPage"') !== false || stripos($html, "'FAQPage'") !== false;
+    preg_match_all('/<h2\b/i', $html, $h2m); $h2 = count($h2m[0]);
+    preg_match_all('/<h3\b/i', $html, $h3m); $h3 = count($h3m[0]);
+    preg_match_all('/<(ul|ol)\b/i', $body, $lm); $lists = count($lm[0]);
+    // Questions détectées (FAQ visible)
+    preg_match_all('/<(?:summary|h2|h3)[^>]*>[^<]*\?[^<]*<\/(?:summary|h2|h3)>/i', $body, $qm); $questions = count($qm[0]);
+    $hasPhone = stripos($html, 'tel:') !== false;
+    // Meta description (gestion correcte des apostrophes)
+    $desc = preg_match('/<meta[^>]+name=["\']description["\'][^>]*content=(["\'])(.*?)\1/is', $html, $dm) ? trim($dm[2]) : '';
+    $descLen = mb_strlen($desc);
+    $hasOgImage = (bool)preg_match('/<meta[^>]+property=["\']og:image["\']/i', $html);
+
+    // Score GEO (règles transparentes)
+    $score = 0;
+    if ($hasJsonLd)        $score += 22;
+    if ($hasFaqSchema)     $score += 12;
+    if ($questions >= 3)   $score += 14; elseif ($questions >= 1) $score += 6;
+    if ($words >= 350)     $score += 16; elseif ($words >= 150) $score += 8;
+    if ($lists >= 2)       $score += 10; elseif ($lists >= 1) $score += 5;
+    if ($h2 >= 2)          $score += 10;
+    if ($descLen >= 70 && $descLen <= 170) $score += 8;
+    if ($hasPhone)         $score += 8;
+    $score = min(100, $score);
+
+    // Recommandations GEO
+    $recos = [];
+    if (!$hasJsonLd)      $recos[] = 'Ajouter des données structurées Schema.org (JSON-LD) pour que les IA identifient l\'entité et les services.';
+    if (!$hasFaqSchema && $questions < 1) $recos[] = 'Ajouter une FAQ (questions/réponses) : les IA reprennent volontiers ce format.';
+    if ($questions >= 1 && !$hasFaqSchema) $recos[] = 'Baliser la FAQ existante en Schema.org FAQPage.';
+    if ($words < 150)     $recos[] = 'Enrichir le contenu (au moins 150–350 mots) avec des faits concrets et citables.';
+    if ($lists < 1)       $recos[] = 'Structurer avec des listes à puces (les IA extraient mieux les listes).';
+    if ($h2 < 2)          $recos[] = 'Hiérarchiser avec des sous-titres H2/H3 clairs et explicites.';
+    if (!$hasPhone)       $recos[] = 'Afficher des faits d\'entité citables (téléphone, zone, horaires).';
+    if ($descLen < 70 || $descLen > 170) $recos[] = 'Rédiger une méta-description factuelle de 70–170 caractères.';
+
+    $pages[] = [
+      'file' => $name, 'url' => '/' . $name, 'score' => $score,
+      'jsonld' => $hasJsonLd, 'faqSchema' => $hasFaqSchema, 'questions' => $questions,
+      'words' => $words, 'lists' => $lists, 'h2' => $h2, 'h3' => $h3,
+      'phone' => $hasPhone, 'descLen' => $descLen, 'ogImage' => $hasOgImage,
+      'recos' => $recos,
+    ];
+  }
+  usort($pages, fn($a, $b) => $a['score'] - $b['score']);
+
+  // Fichiers destinés aux IA / moteurs
+  $robots = @file_get_contents($root . '/robots.txt');
+  $site = [
+    'llmsTxt'    => is_file($root . '/llms.txt'),
+    'robotsTxt'  => is_file($root . '/robots.txt'),
+    'robotsAI'   => $robots !== false && (stripos($robots, 'GPTBot') !== false || stripos($robots, 'PerplexityBot') !== false),
+    'sitemap'    => is_file($root . '/sitemap.xml'),
+    'jsonldPages'=> count(array_filter($pages, fn($p) => $p['jsonld'])),
+    'faqPages'   => count(array_filter($pages, fn($p) => $p['faqSchema'])),
+    'total'      => count($pages),
+  ];
+
+  return ['success' => true, 'pages' => $pages, 'site' => $site];
 }

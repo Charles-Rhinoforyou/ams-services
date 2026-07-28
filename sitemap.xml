@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://ams-services-depannage.fr/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://ams-services-depannage.fr/urgence.html</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://ams-services-depannage.fr/plomberie.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ams-services-depannage.fr/electricite.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ams-services-depannage.fr/serrurerie.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ams-services-depannage.fr/volets-roulants.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ams-services-depannage.fr/bricolage.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://ams-services-depannage.fr/nettoyage-toiture.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://ams-services-depannage.fr/nettoyage-terrasse.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://ams-services-depannage.fr/portfolio.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+</urlset>

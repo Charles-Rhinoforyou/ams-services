@@ -1,0 +1,50 @@
+# robots.txt — AMS'SERVICES (ams-services-depannage.fr)
+# Objectif SEO + GEO : autoriser explicitement les robots des moteurs
+# classiques ET des IA génératives (pour être compris et cité).
+
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /stats-data/
+
+# --- Moteurs de recherche ---
+User-agent: Googlebot
+Allow: /
+User-agent: Bingbot
+Allow: /
+
+# --- IA génératives (GEO : on veut être lu et cité) ---
+User-agent: GPTBot
+Allow: /
+User-agent: OAI-SearchBot
+Allow: /
+User-agent: ChatGPT-User
+Allow: /
+User-agent: ClaudeBot
+Allow: /
+User-agent: Claude-Web
+Allow: /
+User-agent: anthropic-ai
+Allow: /
+User-agent: PerplexityBot
+Allow: /
+User-agent: Perplexity-User
+Allow: /
+User-agent: Google-Extended
+Allow: /
+User-agent: Applebot
+Allow: /
+User-agent: Applebot-Extended
+Allow: /
+User-agent: Bingbot-Extended
+Allow: /
+User-agent: CCBot
+Allow: /
+User-agent: Amazonbot
+Allow: /
+User-agent: DuckAssistBot
+Allow: /
+User-agent: cohere-ai
+Allow: /
+
+Sitemap: https://ams-services-depannage.fr/sitemap.xml

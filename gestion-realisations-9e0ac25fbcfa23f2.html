@@ -298,6 +298,7 @@
         <div class="sec-item"        data-sub="conversions"   onclick="statsNav('conversions')"><span class="si-icon">🎯</span><span class="si-name">Conversions</span></div>
         <div class="sec-item"        data-sub="search"        onclick="statsNav('search')"><span class="si-icon">🔎</span><span class="si-name">Recherche Google</span></div>
         <div class="sec-item"        data-sub="geo"           onclick="statsNav('geo')"><span class="si-icon">🌍</span><span class="si-name">Géographie</span></div>
+        <div class="sec-item"        data-sub="aigeo"         onclick="statsNav('aigeo')"><span class="si-icon">🤖</span><span class="si-name">GEO — IA générative</span></div>
         <div class="sec-item"        data-sub="reco"          onclick="statsNav('reco')"><span class="si-icon">💡</span><span class="si-name">Recommandations</span></div>
         <div class="sec-item"        data-sub="config"        onclick="statsNav('config')"><span class="si-icon">⚙️</span><span class="si-name">Configuration &amp; RGPD</span></div>
       </div>
@@ -967,6 +968,7 @@ async function loadStats(){
     else if (statsSub==='interventions') await renderInterventions(panel);
     else if (statsSub==='conversions')   await renderConversions(panel);
     else if (statsSub==='config')        await renderConfig(panel);
+    else if (statsSub==='aigeo')         await renderAigeo(panel);
     else if (statsSub==='reco')          await renderReco(panel);
     else if (statsSub==='search')        await renderSearch(panel);
     else if (statsSub==='geo')           await renderGeo(panel);
@@ -1205,6 +1207,70 @@ async function renderReco(panel){
       <div style="font-size:.84rem;margin:4px 0;">${esc(c.reason)}</div>
       <div style="font-size:.82rem;color:var(--blue);">→ ${esc(c.action)}</div>
     </div>`).join('')}</div>`;
+}
+
+/* ---- GEO : Generative Engine Optimization (IA génératives) ---- */
+async function renderAigeo(panel){
+  let d;
+  try { d = await apiStats('aigeo'); }
+  catch(e){ panel.innerHTML = `<div class="notconf"><div class="eicon">⚠️</div><h3>Analyse indisponible</h3><p>${esc(e.message)}</p></div>`; return; }
+  const s = d.site||{};
+  const chk = (ok,txt)=>`<div class="bar-row" style="gap:8px;"><span style="flex:0 0 auto;">${ok?'✅':'❌'}</span><span class="bar-label" style="flex:1;">${txt}</span></div>`;
+
+  const intro = `
+    <div class="stats-card" style="border-left:4px solid #6D28D9;">
+      <h3>🤖 GEO — être compris et cité par les IA génératives</h3>
+      <p style="font-size:.85rem;color:#4B5563;line-height:1.6;margin:0;">Le <strong>GEO</strong> (Generative Engine Optimization) prolonge le SEO : l'objectif n'est plus seulement d'être bien classé sur Google, mais d'être <strong>compris, repris et cité</strong> dans les réponses de ChatGPT, Google AI Overviews / AI Mode, Perplexity, Copilot… Les leviers : des <strong>données structurées</strong> claires, un contenu <strong>factuel et citable</strong>, des <strong>questions/réponses (FAQ)</strong>, une <strong>structure nette</strong> (titres, listes) et l'<strong>autorisation des robots d'IA</strong>.</p>
+    </div>`;
+
+  const assets = `
+    <div class="stats-2col">
+      <div class="stats-card"><h3>Fichiers destinés aux IA &amp; moteurs</h3>
+        ${chk(s.robotsTxt, '<code>robots.txt</code> présent')}
+        ${chk(s.robotsAI, 'Robots IA autorisés (GPTBot, PerplexityBot, Google-Extended…)')}
+        ${chk(s.sitemap, '<code>sitemap.xml</code> présent')}
+        ${chk(s.llmsTxt, '<code>llms.txt</code> présent (résumé du site pour les IA)')}
+      </div>
+      <div class="stats-card"><h3>Couverture « données structurées »</h3>
+        <div class="kpi-value" style="font-size:1.5rem;">${s.jsonldPages||0}/${s.total||0}</div>
+        <div class="kpi-hint">pages avec Schema.org (JSON-LD)</div>
+        <div class="kpi-value" style="font-size:1.5rem;margin-top:10px;">${s.faqPages||0}/${s.total||0}</div>
+        <div class="kpi-hint">pages avec FAQ balisée (FAQPage) — format très repris par les IA</div>
+      </div>
+    </div>`;
+
+  const badge = sc => sc>=75?'ok':(sc>=50?'mid':'bad');
+  const yn = b => b?'<span style="color:#16a34a">✔</span>':'<span style="color:#B91C1C">✘</span>';
+  const rows = (d.pages||[]).map(p=>`
+    <tr>
+      <td><strong>${esc(p.file)}</strong><br><a href="${esc(p.url)}" target="_blank" style="font-size:.72rem;color:var(--blue)">ouvrir ↗</a></td>
+      <td><span class="seo-badge ${badge(p.score)}">${p.score}/100</span></td>
+      <td style="text-align:center">${yn(p.jsonld)}</td>
+      <td style="text-align:center">${yn(p.faqSchema)}${p.questions?` <span style="font-size:.7rem;color:var(--gray)">(${p.questions}Q)</span>`:''}</td>
+      <td style="text-align:center">${fmtInt(p.words)}</td>
+      <td style="text-align:center">${p.h2}</td>
+      <td style="text-align:center">${p.lists}</td>
+      <td style="font-size:.78rem;color:#4B5563">${p.recos.length? esc(p.recos[0]) : '<span style="color:#16a34a">✓ Bien optimisée</span>'}</td>
+    </tr>`).join('');
+
+  const table = `
+    <div class="stats-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+        <h3 style="margin:0;">Aptitude GEO par page (${(d.pages||[]).length})</h3>
+        <button class="abtn abtn-outline abtn-sm" onclick="loadStats()">↻ Ré-analyser</button>
+      </div>
+      <p style="font-size:.78rem;color:var(--gray);margin:8px 0 12px;">Score interne d'aide (transparent) : données structurées, FAQ, profondeur de contenu, structure, faits citables. Ce n'est pas une note officielle d'un moteur IA.</p>
+      <div style="overflow-x:auto;"><table class="stats-table"><thead><tr><th>Page</th><th>Score</th><th>Schema</th><th>FAQ</th><th>Mots</th><th>H2</th><th>Listes</th><th>1ʳᵉ recommandation</th></tr></thead><tbody>${rows}</tbody></table></div>
+    </div>`;
+
+  // Recommandations agrégées prioritaires
+  const allRecos = {};
+  (d.pages||[]).forEach(p=>p.recos.forEach(r=>{ allRecos[r]=(allRecos[r]||0)+1; }));
+  const recoList = Object.entries(allRecos).sort((a,b)=>b[1]-a[1]).slice(0,6)
+    .map(([r,n])=>`<div style="border-left:4px solid #6D28D9;background:#F5F3FF;border-radius:8px;padding:10px 12px;margin-bottom:8px;"><span style="font-size:.82rem;">${esc(r)}</span> <span class="fchip gray" style="margin-left:6px;">${n} page(s)</span></div>`).join('');
+  const recoCard = recoList ? `<div class="stats-card"><h3>💡 Actions GEO prioritaires</h3>${recoList}</div>` : '';
+
+  panel.innerHTML = intro + assets + recoCard + table;
 }
 
 /* ---- Recherche Google (Search Console) ---- */
