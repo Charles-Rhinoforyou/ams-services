@@ -422,6 +422,7 @@ function showAdmin() {
   document.getElementById('admin-ui').style.display = 'flex';
   document.getElementById('login-err').style.display = 'none';
   initAdmin();
+  applyAdminHash(); // ouvre l'onglet correspondant à l'ancre de l'URL (signet)
 }
 
 document.getElementById('btn-logout').onclick = () => {
@@ -931,7 +932,37 @@ function switchView(v){
   document.getElementById('tab-analytics').classList.toggle('active', isA);
   document.getElementById('actions-realisations').style.display = isA ? 'none' : 'contents';
   if (isA && !statsLoadedOnce) { statsLoadedOnce = true; document.getElementById('stats-from').value=statsPeriod.from; document.getElementById('stats-to').value=statsPeriod.to; loadStats(); }
+  updateAdminHash();
 }
+
+/* ── URLs « signet » par onglet (ancre #) ── */
+let _hashApplying = false;
+function currentAdminHash(){
+  const isA = document.getElementById('view-analytics').style.display !== 'none';
+  return isA ? ('seo-statistiques' + (statsSub && statsSub !== 'overview' ? '/' + statsSub : '')) : 'realisations';
+}
+function updateAdminHash(){
+  if (_hashApplying) return;
+  const h = '#' + currentAdminHash();
+  if (location.hash !== h) { try { history.replaceState(null, '', h); } catch(e) { location.hash = h; } }
+}
+function applyAdminHash(){
+  const h = (location.hash || '').replace(/^#/, '').toLowerCase();
+  if (!h) return;
+  _hashApplying = true;
+  try {
+    if (h.indexOf('seo') === 0 || h.indexOf('stat') === 0 || h === 'analytics') {
+      switchView('analytics');
+      const sub = h.split('/')[1];
+      if (sub) statsNav(sub);
+    } else if (h.indexOf('real') === 0) {
+      switchView('realisations');
+    }
+  } finally { _hashApplying = false; }
+}
+window.addEventListener('hashchange', () => {
+  if (document.getElementById('admin-ui').style.display !== 'none') applyAdminHash();
+});
 
 function setPeriod(days){
   statsPeriod = { from: isoDaysAgo(days-1), to: isoToday() };
@@ -946,6 +977,7 @@ function customPeriod(){
 function statsNav(sub){
   statsSub = sub;
   document.querySelectorAll('#stats-subnav .sec-item').forEach(el=>el.classList.toggle('active', el.dataset.sub===sub));
+  updateAdminHash();
   loadStats();
 }
 
@@ -1531,12 +1563,13 @@ async function renderConfig(panel){
         <li>✅ Aucun contenu de formulaire enregistré.</li>
         <li>✅ Données agrégées, hébergées sur votre serveur OVH (aucun tiers).</li>
         <li>✅ Durée de conservation configurable + purge manuelle.</li>
+        <li>✅ Politique de confidentialité en ligne, mentionnant la mesure d'audience (<a href="confidentialite.html" target="_blank" style="color:var(--blue)">confidentialite.html</a>).</li>
+        <li>✅ Lien « gérer / retirer le consentement » présent (bandeau cookies + pied de page).</li>
       </ul>
       <h3 style="margin-top:16px;">À valider par vos soins</h3>
       <ul style="font-size:.85rem;line-height:1.9;padding-left:18px;color:var(--gray);margin:0;">
-        <li>⚠️ Mettre à jour la politique de confidentialité (mention de la mesure d'audience).</li>
-        <li>⚠️ Ajouter un lien « gérer / retirer le consentement ».</li>
-        <li>⚠️ Vérifier l'exemption CNIL ou le recueil de consentement selon votre configuration finale.</li>
+        <li>⚠️ Compléter l'identification légale (raison sociale, SIRET, adresse) sur la page de confidentialité.</li>
+        <li>⚠️ Vérifier l'exemption CNIL ou le recueil de consentement selon votre configuration finale, et faire relire par un professionnel.</li>
       </ul>
       <p style="font-size:.78rem;color:var(--gray);margin-top:8px;">Cet outil facilite la conformité mais ne constitue pas une validation juridique.</p>
     </div>`;
