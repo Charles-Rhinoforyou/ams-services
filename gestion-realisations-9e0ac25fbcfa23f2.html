@@ -422,7 +422,10 @@ function showAdmin() {
   document.getElementById('admin-ui').style.display = 'flex';
   document.getElementById('login-err').style.display = 'none';
   initAdmin();
-  applyAdminHash(); // ouvre l'onglet correspondant à l'ancre de l'URL (signet)
+  // Différé : applyAdminHash utilise des variables (statsSub, statsPeriod…) déclarées
+  // plus bas dans le script. Au chargement (reprise de session), showAdmin peut s'exécuter
+  // avant ces déclarations → on attend la fin du script pour éviter toute erreur (TDZ).
+  setTimeout(applyAdminHash, 0);
 }
 
 document.getElementById('btn-logout').onclick = () => {
@@ -936,7 +939,7 @@ function switchView(v){
 }
 
 /* ── URLs « signet » par onglet (ancre #) ── */
-let _hashApplying = false;
+var _hashApplying = false; // var (pas let) : évite la TDZ car showAdmin() peut s'exécuter avant cette ligne au chargement
 function currentAdminHash(){
   const isA = document.getElementById('view-analytics').style.display !== 'none';
   return isA ? ('seo-statistiques' + (statsSub && statsSub !== 'overview' ? '/' + statsSub : '')) : 'realisations';
