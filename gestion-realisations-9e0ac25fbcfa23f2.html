@@ -300,6 +300,7 @@
         <div class="sec-item"        data-sub="keywords"      onclick="statsNav('keywords')"><span class="si-icon">🔑</span><span class="si-name">Mots-clés &amp; positions</span></div>
         <div class="sec-item"        data-sub="geo"           onclick="statsNav('geo')"><span class="si-icon">🌍</span><span class="si-name">Géographie</span></div>
         <div class="sec-item"        data-sub="aigeo"         onclick="statsNav('aigeo')"><span class="si-icon">🤖</span><span class="si-name">GEO — IA générative</span></div>
+        <div class="sec-item"        data-sub="concurrence"   onclick="statsNav('concurrence')"><span class="si-icon">🏆</span><span class="si-name">Concurrence</span></div>
         <div class="sec-item"        data-sub="reco"          onclick="statsNav('reco')"><span class="si-icon">💡</span><span class="si-name">Recommandations</span></div>
         <div class="sec-item"        data-sub="config"        onclick="statsNav('config')"><span class="si-icon">⚙️</span><span class="si-name">Configuration &amp; RGPD</span></div>
       </div>
@@ -1005,6 +1006,7 @@ async function loadStats(){
     else if (statsSub==='conversions')   await renderConversions(panel);
     else if (statsSub==='config')        await renderConfig(panel);
     else if (statsSub==='aigeo')         await renderAigeo(panel);
+    else if (statsSub==='concurrence')   await renderConcurrence(panel);
     else if (statsSub==='reco')          await renderReco(panel);
     else if (statsSub==='search')        await renderSearch(panel);
     else if (statsSub==='keywords')      await renderKeywords(panel);
@@ -1247,6 +1249,109 @@ async function renderReco(panel){
 }
 
 /* ---- GEO : Generative Engine Optimization (IA génératives) ---- */
+function concTab(which){
+  var serp = which==='serp';
+  var a=document.getElementById('conc-serp'), b=document.getElementById('conc-ai');
+  if(a) a.style.display=serp?'block':'none';
+  if(b) b.style.display=serp?'none':'block';
+  var ta=document.getElementById('conc-tab-serp'), tb=document.getElementById('conc-tab-ai');
+  var base='padding:9px 16px;border-radius:8px;font-weight:700;font-size:.85rem;cursor:pointer;';
+  var on='background:var(--blue);color:#fff;border:1px solid var(--blue);';
+  var off='background:#fff;color:var(--blue);border:1px solid #CBD5E1;';
+  if(ta) ta.setAttribute('style', base+(serp?on:off));
+  if(tb) tb.setAttribute('style', base+(serp?off:on));
+}
+window.concTab = concTab;
+
+async function renderConcurrence(panel){
+  panel.innerHTML = `
+    <div class="stats-card" style="border-left:4px solid #B45309;">
+      <h3>🏆 Concurrence — qui apparaît devant vous ?</h3>
+      <p style="font-size:.85rem;color:#4B5563;line-height:1.6;margin:0 0 6px;">Analyse des acteurs qui ressortent en premier sur vos mots-clés à Chambéry (plomberie, électricité, serrurerie, volets roulants, dépannage, toiture), côté <strong>moteur de recherche classique</strong> et côté <strong>IA génératives</strong>. Objectif : comprendre comment passer devant.</p>
+      <p style="font-size:.72rem;color:var(--gray);margin:0;">Relevé : juillet 2026 · recherches web réelles pour le volet Google. Le volet IA est une <em>analyse des sources habituellement reprises</em> par ChatGPT, Perplexity et Copilot (pas une interrogation en direct de ces services).</p>
+    </div>
+
+    <div style="display:flex;gap:10px;margin:14px 0 4px;flex-wrap:wrap;">
+      <button id="conc-tab-serp" onclick="concTab('serp')" style="padding:9px 16px;border-radius:8px;font-weight:700;font-size:.85rem;cursor:pointer;background:var(--blue);color:#fff;border:1px solid var(--blue);">🔎 Recherche classique (Google)</button>
+      <button id="conc-tab-ai" onclick="concTab('ai')" style="padding:9px 16px;border-radius:8px;font-weight:700;font-size:.85rem;cursor:pointer;background:#fff;color:var(--blue);border:1px solid #CBD5E1;">🤖 IA génératives (ChatGPT · Perplexity · Copilot)</button>
+    </div>
+
+    <div id="conc-serp">
+      <div class="stats-card">
+        <h3>Top 10 des acteurs qui monopolisent la 1ʳᵉ page Google</h3>
+        <p style="font-size:.78rem;color:var(--gray);margin:6px 0 12px;">Agrégé sur vos 6 familles de mots-clés. Les <strong>annuaires nationaux</strong> occupent l'essentiel de la page avant les artisans locaux.</p>
+        <div style="overflow-x:auto;"><table class="stats-table">
+          <thead><tr><th>#</th><th>Acteur</th><th>Type</th><th>Ressort sur</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td><strong>PagesJaunes</strong></td><td>Annuaire national</td><td>Électricité, plomberie, dépannage, toiture, serrurerie</td></tr>
+            <tr><td>2</td><td><strong>Bilik</strong></td><td>Annuaire d'artisans « de confiance »</td><td>Plomberie, électricité, serrurerie, volet</td></tr>
+            <tr><td>3</td><td><strong>Depanneo</strong></td><td>Plateforme de dépannage</td><td>Plomberie, électricité, serrurerie</td></tr>
+            <tr><td>4</td><td><strong>StarOfService</strong></td><td>Annuaire de devis (pages « Top 10 »)</td><td>Plomberie, toiture</td></tr>
+            <tr><td>5</td><td><strong>Travaux.com</strong></td><td>Annuaire de devis (pages « Top 10 »)</td><td>Plomberie, électricité</td></tr>
+            <tr><td>6</td><td><strong>Ou-Serrurier</strong></td><td>Annuaire spécialisé</td><td>Serrurerie, volet roulant</td></tr>
+            <tr><td>7</td><td><strong>HomeServe / MesBonsPros</strong></td><td>Réseau national de dépannage</td><td>Électricité, plomberie</td></tr>
+            <tr><td>8</td><td><strong>Dépannage Habitat</strong></td><td>Réseau national de dépannage</td><td>Dépannage multi-services</td></tr>
+            <tr><td>9</td><td><strong>Réseaux « volet » (Pro Volet, Allo Volet, Clic-Volet, Repar'Stores)</strong></td><td>Réseaux franchisés spécialisés</td><td>Volet roulant</td></tr>
+            <tr><td>10</td><td><strong>Artisans locaux (Le Plombier 73, Granier Élec., Serrurier Savoyard, Efika, Savoie Toiture, Nova Clean…)</strong></td><td>Concurrents directs locaux</td><td>Tous services</td></tr>
+          </tbody>
+        </table></div>
+        <p style="font-size:.75rem;color:var(--gray);margin:12px 0 0;">💡 Au-dessus de ces résultats se trouve aussi le <strong>« pack local » Google (carte + 3 fiches)</strong>, alimenté par les fiches Google Business Profile — souvent le premier point de contact réel.</p>
+      </div>
+
+      <div class="stats-card">
+        <h3>Détail par mot-clé (résultats réels observés)</h3>
+        <details style="margin:6px 0;"><summary style="cursor:pointer;font-weight:600;color:var(--blue);">Plombier / dépannage plomberie Chambéry</summary><div style="font-size:.8rem;color:#374151;padding:8px 0 0;line-height:1.7;">Bilik · Le Plombier 73 · Depanneo · Les Plombiers du Cœur · Proximité Plombier · Travaux.com · StarOfService · Dépannage 24</div></details>
+        <details style="margin:6px 0;"><summary style="cursor:pointer;font-weight:600;color:var(--blue);">Électricien / dépannage électricité Chambéry</summary><div style="font-size:.8rem;color:#374151;padding:8px 0 0;line-height:1.7;">Bilik · Depanneo · PagesJaunes · Travaux.com · Granier Électricité · HomeServe (MesBonsPros)</div></details>
+        <details style="margin:6px 0;"><summary style="cursor:pointer;font-weight:600;color:var(--blue);">Serrurier / ouverture de porte Chambéry</summary><div style="font-size:.8rem;color:#374151;padding:8px 0 0;line-height:1.7;">Depanneo · Serrurier-Urgence-Savoie · Ou-Serrurier · Serrurier Savoyard · Bilik · Serrurier2Chambéry · Serrurier-ALB</div></details>
+        <details style="margin:6px 0;"><summary style="cursor:pointer;font-weight:600;color:var(--blue);">Réparation volet roulant Chambéry</summary><div style="font-size:.8rem;color:#374151;padding:8px 0 0;line-height:1.7;">Pro Volet · Bilik · Allo Volet Service · Ou-Serrurier · Clic-Volet · Général Métal · Repar'Stores</div></details>
+        <details style="margin:6px 0;"><summary style="cursor:pointer;font-weight:600;color:var(--blue);">Dépannage à domicile 24h Chambéry</summary><div style="font-size:.8rem;color:#374151;padding:8px 0 0;line-height:1.7;">Dépannage Habitat · PagesJaunes · Efika Plombier · Proximité Plombier — <strong>AMS'SERVICES y apparaît déjà</strong> sur cette requête</div></details>
+        <details style="margin:6px 0;"><summary style="cursor:pointer;font-weight:600;color:var(--blue);">Nettoyage / démoussage toiture Chambéry</summary><div style="font-size:.8rem;color:#374151;padding:8px 0 0;line-height:1.7;">Nettoyage-Démoussage-Toiture-Savoie · PagesJaunes · Technic'Toiture · StarOfService · Savoie Toiture · Nova Clean · Protect'Toitures · Groupe Lecarré</div></details>
+      </div>
+
+      <div class="stats-card" style="border-left:4px solid #16a34a;">
+        <h3>✅ Comment passer devant (recherche classique)</h3>
+        <ul style="font-size:.85rem;color:#374151;line-height:1.8;margin:6px 0 0;padding-left:20px;">
+          <li><strong>Gagner le « pack local »</strong> : créer/optimiser votre <strong>fiche Google Business Profile</strong> (catégories, zone d'intervention, horaires 24/7, photos, numéro).</li>
+          <li><strong>Être présent DANS les annuaires qui trustent la page</strong> : PagesJaunes, Bilik, StarOfService, Travaux.com, Depanneo — puisqu'ils occupent le top 10, y figurer = visibilité immédiate.</li>
+          <li><strong>Récolter des avis Google</strong> (les annuaires classent en partie sur la réputation) — en demander après chaque intervention.</li>
+          <li><strong>Garder une page par service + par zone</strong> (déjà en place) et viser les communes voisines (Aix-les-Bains, Annecy…).</li>
+          <li><strong>Rester rapide et bien structuré</strong> : vos pages sont techniquement au-dessus de beaucoup de concurrents (SEO/GEO 95–100).</li>
+        </ul>
+      </div>
+    </div>
+
+    <div id="conc-ai" style="display:none;">
+      <div class="stats-card">
+        <h3>Sources les plus reprises par les IA génératives (local dépannage)</h3>
+        <p style="font-size:.78rem;color:var(--gray);margin:6px 0 12px;">Quand on demande à ChatGPT, Perplexity ou Copilot « un plombier / serrurier / dépannage à Chambéry », ces moteurs s'appuient surtout sur les sources suivantes :</p>
+        <div style="overflow-x:auto;"><table class="stats-table">
+          <thead><tr><th>Source</th><th>Pourquoi les IA la citent</th><th>Votre présence</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Google Business Profile / Maps</strong></td><td>Source n°1 pour « près de moi » : nom, tél, zone, horaires et avis structurés</td><td><span class="seo-badge bad">À créer / vérifier</span></td></tr>
+            <tr><td><strong>PagesJaunes</strong></td><td>Fiche structurée (NAP cohérent) + avis, très indexée par les IA</td><td><span class="seo-badge mid">À revendiquer</span></td></tr>
+            <tr><td><strong>Bilik</strong></td><td>Artisans « vérifiés » + avis + contenu éditorial local</td><td><span class="seo-badge mid">À solliciter</span></td></tr>
+            <tr><td><strong>Pages « Top 10 / meilleurs »</strong> (StarOfService, Travaux.com)</td><td>Les IA reprennent volontiers les listes déjà classées</td><td><span class="seo-badge mid">À intégrer</span></td></tr>
+            <tr><td><strong>Avis Google / Trustpilot</strong></td><td>Signal de réputation cité dans les réponses (« bien noté »)</td><td><span class="seo-badge bad">À développer</span></td></tr>
+            <tr><td><strong>Votre site (structure + Schema + FAQ)</strong></td><td>Faits citables, FAQPage, entité claire, llms.txt — format idéal pour être cité mot pour mot</td><td><span class="seo-badge ok">✅ Excellent (95–100)</span></td></tr>
+          </tbody>
+        </table></div>
+      </div>
+
+      <div class="stats-card" style="border-left:4px solid #6D28D9;">
+        <h3>✅ Comment être cité par les IA</h3>
+        <ul style="font-size:.85rem;color:#374151;line-height:1.8;margin:6px 0 0;padding-left:20px;">
+          <li><strong>Fiche Google Business Profile complète</strong> — c'est le socle repris par la plupart des IA pour le local.</li>
+          <li><strong>Avis Google réguliers</strong> — la réputation est un critère fort de citation.</li>
+          <li><strong>Présence dans PagesJaunes, Bilik, StarOfService, Travaux.com</strong> — ce sont des sources que les IA agrègent.</li>
+          <li><strong>Cohérence NAP</strong> (Nom, Adresse/zone, Téléphone identiques partout) — les IA recoupent ces informations.</li>
+          <li><strong>Continuer à publier des faits citables</strong> : zone couverte, délais (« &lt; 30 min »), disponibilité 24/7, tarifs indicatifs — <em>déjà bien engagé sur votre site</em>.</li>
+          <li><strong>Votre avantage technique est déjà pris</strong> : Schema.org + FAQPage + llms.txt sur toutes les pages (le point le plus dur pour vos concurrents).</li>
+        </ul>
+      </div>
+    </div>
+  `;
+}
+
 async function renderAigeo(panel){
   let d;
   try { d = await apiStats('aigeo'); }
