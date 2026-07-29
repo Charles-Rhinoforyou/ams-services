@@ -129,8 +129,9 @@
     .u-faq details { background:#fff; border:1px solid #E8EDF5; border-radius:10px; padding:0; overflow:hidden; }
     .u-faq summary { list-style:none; cursor:pointer; padding:15px 18px; font-weight:700; font-size:.9rem; color:var(--navy); display:flex; align-items:center; justify-content:space-between; gap:10px; }
     .u-faq summary::-webkit-details-marker { display:none; }
-    .u-faq summary .plus { color:var(--orange); font-size:1.3rem; font-weight:700; flex:0 0 auto; transition:transform .2s; }
-    .u-faq details[open] summary .plus { transform:rotate(45deg); }
+    .u-faq summary .plus { display:none; }
+    .u-faq summary::after { content:'+'; color:var(--orange); font-size:1.3rem; font-weight:700; flex:0 0 auto; transition:transform .2s; }
+    .u-faq details[open] summary::after { transform:rotate(45deg); }
     .u-faq .ans { padding:0 18px 16px; font-size:.86rem; color:#4B5563; }
 
     /* ══ SEO ══ */
@@ -370,15 +371,15 @@
   <div class="container">
     <h2 class="u-h2" style="margin-bottom:36px;">Questions fréquentes</h2>
     <div class="u-faq-grid">
-      <details><summary>Quel est le délai d'intervention&nbsp;? <span class="plus">+</span></summary><div class="ans">Nous intervenons en général en moins de 30 minutes selon votre localisation en Savoie et Haute-Savoie.</div></details>
-      <details><summary>Intervenez-vous la nuit&nbsp;? <span class="plus">+</span></summary><div class="ans">Oui, nous sommes disponibles 24h/24, y compris la nuit, pour toutes vos urgences.</div></details>
-      <details><summary>Intervenez-vous le dimanche et les jours fériés&nbsp;? <span class="plus">+</span></summary><div class="ans">Oui, notre service d'urgence fonctionne 7j/7, week-ends et jours fériés compris.</div></details>
-      <details><summary>Quels sont vos tarifs&nbsp;? <span class="plus">+</span></summary><div class="ans">Nos tarifs sont clairs et annoncés avant toute intervention. Un devis vous est présenté systématiquement.</div></details>
-      <details><summary>Faites-vous un devis avant intervention&nbsp;? <span class="plus">+</span></summary><div class="ans">Oui, un devis clair et sans engagement est établi avant chaque intervention.</div></details>
-      <details><summary>Quels moyens de paiement acceptez-vous&nbsp;? <span class="plus">+</span></summary><div class="ans">Nous acceptons notamment la carte bancaire pour un paiement simple et sécurisé.</div></details>
-      <details><summary>Intervenez-vous à Annecy et Chambéry&nbsp;? <span class="plus">+</span></summary><div class="ans">Oui, nous couvrons Chambéry, Annecy et l'ensemble de la Savoie et de la Haute-Savoie.</div></details>
-      <details><summary>Intervenez-vous dans ma commune&nbsp;? <span class="plus">+</span></summary><div class="ans">Nous intervenons dans la plupart des communes de Savoie et Haute-Savoie. Appelez-nous pour vérifier votre commune.</div></details>
-      <details><summary>Quels types d'urgences traitez-vous&nbsp;? <span class="plus">+</span></summary><div class="ans">Plomberie, électricité, serrurerie et volets roulants : fuites, pannes, ouvertures de porte, volets bloqués, etc.</div></details>
+      <details><summary>Quel est le délai d'intervention&nbsp;?</summary><div class="ans">Nous intervenons en général en moins de 30 minutes selon votre localisation en Savoie et Haute-Savoie.</div></details>
+      <details><summary>Intervenez-vous la nuit&nbsp;?</summary><div class="ans">Oui, nous sommes disponibles 24h/24, y compris la nuit, pour toutes vos urgences.</div></details>
+      <details><summary>Intervenez-vous le dimanche et les jours fériés&nbsp;?</summary><div class="ans">Oui, notre service d'urgence fonctionne 7j/7, week-ends et jours fériés compris.</div></details>
+      <details><summary>Quels sont vos tarifs&nbsp;?</summary><div class="ans">Nos tarifs sont clairs et annoncés avant toute intervention. Un devis vous est présenté systématiquement.</div></details>
+      <details><summary>Faites-vous un devis avant intervention&nbsp;?</summary><div class="ans">Oui, un devis clair et sans engagement est établi avant chaque intervention.</div></details>
+      <details><summary>Quels moyens de paiement acceptez-vous&nbsp;?</summary><div class="ans">Nous acceptons notamment la carte bancaire pour un paiement simple et sécurisé.</div></details>
+      <details><summary>Intervenez-vous à Annecy et Chambéry&nbsp;?</summary><div class="ans">Oui, nous couvrons Chambéry, Annecy et l'ensemble de la Savoie et de la Haute-Savoie.</div></details>
+      <details><summary>Intervenez-vous dans ma commune&nbsp;?</summary><div class="ans">Nous intervenons dans la plupart des communes de Savoie et Haute-Savoie. Appelez-nous pour vérifier votre commune.</div></details>
+      <details><summary>Quels types d'urgences traitez-vous&nbsp;?</summary><div class="ans">Plomberie, électricité, serrurerie et volets roulants : fuites, pannes, ouvertures de porte, volets bloqués, etc.</div></details>
     </div>
   </div>
 </section>
