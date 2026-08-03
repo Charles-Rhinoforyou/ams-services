@@ -1218,9 +1218,25 @@ async function renderConversions(panel){
   const labels={form_submit:'📝 Formulaires',phone_click:'📞 Téléphone',email_click:'✉️ Email',quote_request:'🧾 Devis'};
   const byType=Object.keys(labels).map(k=>({label:labels[k],value:r.byType[k]||0}));
   const byPage=Object.entries(r.byPage||{}).map(([k,v])=>({label:k,value:v}));
+  const anon=r.anon||{total:0,byType:{},byPage:{}};
+  const anonLabels={phone_click:'📞 Téléphone',whatsapp_click:'💬 WhatsApp',email_click:'✉️ Email',quote_request:'🧾 Devis',form_submit:'📝 Formulaire'};
+  const anonByType=Object.keys(anonLabels).filter(k=>anon.byType[k]).map(k=>({label:anonLabels[k],value:anon.byType[k]}));
+  const anonByPage=Object.entries(anon.byPage||{}).map(([k,v])=>({label:k,value:v}));
+  const anonBlock = anon.total>0 ? `
+    <div class="stats-card" style="border-left:4px solid #6D28D9;margin-top:16px;">
+      <h3>🔓 Conversions anonymes (visiteurs sans consentement)</h3>
+      <p style="font-size:.78rem;color:var(--gray);margin:4px 0 12px;">Comptage <strong>agrégé et anonyme</strong> des clics de contact (téléphone, WhatsApp, e-mail, devis) des visiteurs qui n'ont pas accepté la mesure d'audience. Sans cookie, sans IP, sans identifiant. À additionner aux conversions consenties pour estimer le volume réel.</p>
+      <div class="kpi-grid">${kpi('🔓 Total anonyme',anon.total)}${kpi('🧮 Conversions estimées (total)',(s.conversions||0)+anon.total,undefined,'Consenties + anonymes')}</div>
+      <div class="stats-2col" style="margin-top:12px;"><div class="stats-card"><h3>Par type</h3>${barList(anonByType)}</div><div class="stats-card"><h3>Par page</h3>${barList(anonByPage)}</div></div>
+    </div>` : `
+    <div class="stats-card" style="border-left:4px solid #6D28D9;margin-top:16px;">
+      <h3>🔓 Conversions anonymes (visiteurs sans consentement)</h3>
+      <p style="font-size:.82rem;color:#4B5563;margin:4px 0 0;">Aucune pour l'instant sur cette période. Ce compteur (sans cookie ni identifiant) enregistrera les clics « Appeler / WhatsApp / Devis » des visiteurs qui n'acceptent pas la mesure d'audience — pour révéler le volume réel de contacts.</p>
+    </div>`;
   panel.innerHTML=`
     <div class="kpi-grid">${kpi('🎯 Conversions',s.conversions)}${kpi('📈 Taux',s.convRate,undefined,'Conversions / pages vues',' %')}${kpi('📞 Téléphone',s.phone)}${kpi('📝 Formulaires',s.forms)}</div>
-    <div class="stats-2col"><div class="stats-card"><h3>Par type de conversion</h3>${barList(byType)}</div><div class="stats-card"><h3>Par page</h3>${barList(byPage)}</div></div>`;
+    <div class="stats-2col"><div class="stats-card"><h3>Par type de conversion</h3>${barList(byType)}</div><div class="stats-card"><h3>Par page</h3>${barList(byPage)}</div></div>
+    ${anonBlock}`;
 }
 
 async function renderReco(panel){

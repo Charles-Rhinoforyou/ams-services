@@ -213,6 +213,15 @@ function renderDevisModal() {
   </div>`;
 }
 
+function renderMobileCTABar() {
+  return `
+  <nav class="mobile-cta-bar" aria-label="Contact rapide">
+    <a href="tel:${AMS.tel1}" class="mcta mcta-call" data-analytics-id="mcta-call">${ICON_PHONE} Appeler</a>
+    <a href="https://wa.me/${AMS.wa}" class="mcta mcta-wa" target="_blank" rel="noopener" data-analytics-id="mcta-wa">${ICON_WA} WhatsApp</a>
+    <button type="button" class="mcta mcta-devis" data-analytics-id="mcta-devis" onclick="var b=document.getElementById('float-devis-open'); if(b) b.click();">📋 Devis</button>
+  </nav>`;
+}
+
 function renderFloatingBtns() {
   return `
   <div class="float-btns">
@@ -353,7 +362,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Append floating + devis modal + cookie to body
-  document.body.insertAdjacentHTML('beforeend', renderFloatingBtns() + renderDevisModal() + renderCookieBanner());
+  document.body.insertAdjacentHTML('beforeend', renderFloatingBtns() + renderDevisModal() + renderCookieBanner() + renderMobileCTABar());
 
   // Init behaviors
   initCommon();

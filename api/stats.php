@@ -47,6 +47,31 @@ function ams_load_events($from, $to) {
   return $out;
 }
 
+/* Conversions ANONYMES (api/track-conv.php) : jour + action + page.
+   Aucune donnée personnelle, comptage agrégé uniquement. */
+function ams_load_conv($from, $to) {
+  $dir = ams_data_dir();
+  $out = [];
+  try {
+    $cur = new DateTime(substr($from, 0, 7) . '-01');
+    $end = new DateTime(substr($to, 0, 7) . '-01');
+  } catch (Exception $e) { return $out; }
+  while ($cur <= $end) {
+    $file = $dir . '/conv-' . $cur->format('Y-m') . '.ndjson';
+    if (is_file($file) && ($fh = fopen($file, 'r'))) {
+      while (($line = fgets($fh)) !== false) {
+        $r = json_decode($line, true);
+        if (!is_array($r)) continue;
+        $d = $r['d'] ?? '';
+        if ($d >= $from && $d <= $to) $out[] = $r;
+      }
+      fclose($fh);
+    }
+    $cur->modify('+1 month');
+  }
+  return $out;
+}
+
 function ams_apply_filters($events, $filters) {
   if (empty($filters)) return $events;
   return array_values(array_filter($events, function ($r) use ($filters) {
@@ -176,7 +201,28 @@ switch ($action) {
       $byPage[$p] = ($byPage[$p] ?? 0) + 1;
     }
     arsort($byPage);
-    ams_json(['success'=>true,'byType'=>$byType,'byPage'=>array_slice($byPage,0,10,true),'summary'=>ams_summary($ev)]);
+
+    // Conversions anonymes (sans consentement) — comptage agrégé
+    $anon = ams_load_conv($from, $to);
+    $pageFilter = $filters['page'] ?? '';
+    $anonByType = []; $anonByPage = []; $anonTotal = 0;
+    foreach ($anon as $r) {
+      $e = $r['e'] ?? ''; if ($e === '') continue;
+      $p = ($r['pid'] ?? '') !== '' ? $r['pid'] : '(non défini)';
+      if ($pageFilter !== '' && $p !== $pageFilter) continue;
+      $anonByType[$e] = ($anonByType[$e] ?? 0) + 1;
+      $anonByPage[$p] = ($anonByPage[$p] ?? 0) + 1;
+      $anonTotal++;
+    }
+    arsort($anonByPage);
+
+    ams_json([
+      'success' => true,
+      'byType'  => $byType,
+      'byPage'  => array_slice($byPage, 0, 10, true),
+      'summary' => ams_summary($ev),
+      'anon'    => ['total' => $anonTotal, 'byType' => $anonByType, 'byPage' => array_slice($anonByPage, 0, 10, true)],
+    ]);
     break;
   }
 

@@ -1,6 +1,9 @@
 /* ============================================================
    tracker.js — Mesure d'audience AMS'SERVICES
-   • Ne collecte RIEN tant que le consentement ≠ "accepted"
+   • Mesure d'audience complète : RIEN tant que le consentement ≠ "accepted"
+   • Sans consentement : SEUL un comptage anonyme des clics de contact
+     (téléphone, WhatsApp, e-mail, devis) est envoyé — sans cookie, sans IP,
+     sans identifiant : jour + action + page uniquement (non identifiant).
    • Aucune donnée de formulaire, aucune donnée personnelle
    • Envoi non bloquant (sendBeacon), erreurs ignorées
    ============================================================ */
@@ -8,6 +11,7 @@
   'use strict';
 
   var ENDPOINT = 'api/track.php';
+  var CONV_ENDPOINT = 'api/track-conv.php';
 
   // Pages de service → type d'intervention (pour enrichir page_view)
   var INTERVENTION_MAP = {
@@ -69,6 +73,22 @@
   }
   window.amsTrack = send;
 
+  /* Comptage de conversion ANONYME (sans consentement, sans cookie, sans IP) :
+     uniquement pour les clics de contact quand la mesure d'audience n'est pas
+     acceptée. N'envoie que { action, page } — rien d'identifiant. */
+  function sendConvAnon(event) {
+    var body = JSON.stringify({ event: event, page_id: pageId() });
+    try {
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon(CONV_ENDPOINT, new Blob([body], { type: 'application/json' }));
+        return;
+      }
+    } catch (e) { /* ignore */ }
+    try {
+      fetch(CONV_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: body, keepalive: true }).catch(function () {});
+    } catch (e) { /* ignore */ }
+  }
+
   var pageViewSent = false;
   function trackPageView() {
     if (pageViewSent || !enabled()) return;
@@ -78,9 +98,18 @@
 
   /* --- Auto-instrumentation des clics (identifiants stables, pas de texte) --- */
   function onClick(e) {
-    if (!enabled()) return;
     var a = e.target.closest ? e.target.closest('a,button,[data-analytics-action]') : null;
     if (!a) return;
+
+    var hrefEarly = (a.getAttribute && a.getAttribute('href')) || '';
+    // Sans consentement : uniquement un comptage anonyme des clics de contact
+    if (!enabled()) {
+      var conv = /^tel:/i.test(hrefEarly) ? 'phone_click'
+               : /wa\.me|whatsapp/i.test(hrefEarly) ? 'whatsapp_click'
+               : /^mailto:/i.test(hrefEarly) ? 'email_click' : '';
+      if (conv) sendConvAnon(conv);
+      return;
+    }
 
     var explicit = a.getAttribute('data-analytics-action');
     var params = {
@@ -101,10 +130,14 @@
 
   /* --- Formulaires marqués (sans lire leur contenu) --- */
   function onSubmit(e) {
-    if (!enabled()) return;
     var f = e.target;
     if (!f || !f.getAttribute || f.getAttribute('data-analytics-form') === null) return;
     var type = f.getAttribute('data-analytics-type');
+    if (!enabled()) {
+      // Sans consentement : comptage anonyme de l'envoi (aucune donnée du formulaire)
+      sendConvAnon(type === 'quote' ? 'quote_request' : 'form_submit');
+      return;
+    }
     send('form_submit', { element_id: f.id || '' });
     if (type === 'quote') send('quote_request', { element_id: f.id || '' });
   }
