@@ -1518,9 +1518,8 @@ async function renderSearch(panel){
   let st=null, err='';
   try { st = await apiGsc('status'); } catch(e){ err=e.message; }
 
-  const configCard = `
-    <div class="stats-card">
-      <h3>🔎 Connexion à Google Search Console</h3>
+  const gscForm = `
+      <h3 style="margin-top:0;">🔎 Connexion à Google Search Console</h3>
       <p style="font-size:.8rem;color:var(--gray);line-height:1.6;">
         Reliez votre propriété Search Console via un <strong>compte de service Google</strong> (gratuit). Les identifiants restent <strong>sur votre serveur</strong>, jamais dans le navigateur.
         Étapes : Google Cloud → créez un compte de service → activez l'API « Search Console » → téléchargez sa clé <strong>JSON</strong> → dans Search Console, ajoutez l'adresse e-mail du compte de service comme <strong>utilisateur autorisé</strong> de la propriété.
@@ -1535,11 +1534,24 @@ async function renderSearch(panel){
         <button class="abtn abtn-outline abtn-sm" onclick="testGsc()" ${st&&st.configured?'':'disabled style="opacity:.5"'}>🧪 Tester</button>
         ${st&&st.configured?'<button class="abtn abtn-danger abtn-sm" onclick="clearGsc()">Déconnecter</button>':''}
       </div>
-      ${st && st.hasOpenssl===false ? '<p style="font-size:.78rem;color:#B91C1C;margin-top:8px;">⚠️ L\'extension openssl semble indisponible sur le serveur — la connexion Google ne pourra pas signer les requêtes.</p>' : ''}
+      ${st && st.hasOpenssl===false ? '<p style="font-size:.78rem;color:#B91C1C;margin-top:8px;">⚠️ L\'extension openssl semble indisponible sur le serveur — la connexion Google ne pourra pas signer les requêtes.</p>' : ''}`;
+
+  const dotColor = st && st.configured ? '#16a34a' : '#B91C1C';
+  const dotTitle = st && st.configured ? 'Connecté à Google' : 'Non connecté';
+  // Bouton discret ⚙️ (haut à droite) + modale contenant le formulaire de connexion
+  const configCard = `
+    <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
+      <button class="abtn abtn-outline abtn-sm" onclick="openGscModal()" title="Connexion Google Search Console" style="display:inline-flex;align-items:center;gap:7px;">⚙️<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${dotColor};" title="${dotTitle}"></span></button>
+    </div>
+    <div class="gsc-modal-overlay" id="gsc-modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(10,20,40,.55);z-index:3000;align-items:flex-start;justify-content:center;padding:40px 16px;overflow:auto;" onclick="if(event.target===this)closeGscModal()">
+      <div class="gsc-modal" style="background:#fff;border-radius:14px;max-width:640px;width:100%;padding:26px 26px 24px;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.3);">
+        <button onclick="closeGscModal()" aria-label="Fermer" style="position:absolute;top:8px;right:14px;background:none;border:none;font-size:1.7rem;line-height:1;cursor:pointer;color:#6B7280;">&times;</button>
+        ${gscForm}
+      </div>
     </div>`;
 
   if (!st || !st.configured) {
-    panel.innerHTML = configCard + (err ? `<div class="notconf"><div class="eicon">⚠️</div><p>${esc(err)}</p></div>` : `<div class="notconf"><div class="eicon">🔎</div><h3>Non connecté</h3><p>Une fois la connexion configurée, vous verrez ici vos impressions, clics, CTR, position moyenne, requêtes et pages Google.</p></div>`);
+    panel.innerHTML = configCard + (err ? `<div class="notconf"><div class="eicon">⚠️</div><p>${esc(err)}</p></div>` : `<div class="notconf"><div class="eicon">🔎</div><h3>Non connecté</h3><p>Cliquez sur <strong>⚙️</strong> en haut à droite pour configurer la connexion. Une fois connectée, vous verrez ici vos impressions, clics, CTR, position moyenne, requêtes et pages Google.</p></div>`);
     return;
   }
 
@@ -1567,6 +1579,10 @@ async function renderSearch(panel){
         <div class="stats-card"><h3>Pages principales</h3><div style="overflow-x:auto;"><table class="stats-table"><thead><tr><th>Page</th><th>Clics</th><th>Impr.</th><th>CTR</th><th>Pos.</th></tr></thead><tbody>${pRows}</tbody></table></div></div>
       </div>`;
 }
+
+function openGscModal(){ var o=document.getElementById('gsc-modal-overlay'); if(o) o.style.display='flex'; }
+function closeGscModal(){ var o=document.getElementById('gsc-modal-overlay'); if(o) o.style.display='none'; }
+window.openGscModal=openGscModal; window.closeGscModal=closeGscModal;
 
 async function saveGscConfig(){
   const json=document.getElementById('gsc-json').value.trim();
