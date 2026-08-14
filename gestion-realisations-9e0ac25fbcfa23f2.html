@@ -1536,12 +1536,13 @@ async function renderSearch(panel){
       </div>
       ${st && st.hasOpenssl===false ? '<p style="font-size:.78rem;color:#B91C1C;margin-top:8px;">⚠️ L\'extension openssl semble indisponible sur le serveur — la connexion Google ne pourra pas signer les requêtes.</p>' : ''}`;
 
-  const dotColor = st && st.configured ? '#16a34a' : '#B91C1C';
-  const dotTitle = st && st.configured ? 'Connecté à Google' : 'Non connecté';
-  // Bouton discret ⚙️ (haut à droite) + modale contenant le formulaire de connexion
+  // Pastille de statut + bouton discret ⚙️ (haut à droite) + modale contenant le formulaire de connexion
   const configCard = `
-    <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
-      <button class="abtn abtn-outline abtn-sm" onclick="openGscModal()" title="Connexion Google Search Console" style="display:inline-flex;align-items:center;gap:7px;">⚙️<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${dotColor};" title="${dotTitle}"></span></button>
+    <div style="display:flex;justify-content:flex-end;align-items:center;gap:10px;margin-bottom:12px;">
+      ${st && st.configured
+        ? '<span style="display:inline-flex;align-items:center;gap:7px;background:#DCFCE7;color:#166534;font-weight:600;font-size:.8rem;padding:5px 12px;border-radius:999px;"><span style="width:9px;height:9px;border-radius:50%;background:#16a34a;"></span>Connecté à Google Search Console</span>'
+        : '<span style="display:inline-flex;align-items:center;gap:7px;background:#FFEDD5;color:#9A3412;font-weight:600;font-size:.8rem;padding:5px 12px;border-radius:999px;"><span style="width:9px;height:9px;border-radius:50%;background:#EA580C;"></span>Déconnecté de Google Search Console</span>'}
+      <button class="abtn abtn-outline abtn-sm" onclick="openGscModal()" title="Connexion Google Search Console" style="display:inline-flex;align-items:center;">⚙️</button>
     </div>
     <div class="gsc-modal-overlay" id="gsc-modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(10,20,40,.55);z-index:3000;align-items:flex-start;justify-content:center;padding:40px 16px;overflow:auto;" onclick="if(event.target===this)closeGscModal()">
       <div class="gsc-modal" style="background:#fff;border-radius:14px;max-width:640px;width:100%;padding:26px 26px 24px;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.3);">
