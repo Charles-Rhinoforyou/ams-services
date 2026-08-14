@@ -331,7 +331,7 @@ switch ($action) {
    ============================================================ */
 function ams_seo_scan() {
   $root = dirname(__DIR__); // www/
-  $exclude = ['gestion-realisations-9e0ac25fbcfa23f2.html']; // admin exclue
+  $exclude = ['gestion-realisations-9e0ac25fbcfa23f2.html', 'googlec26e0994be0d9c9e.html']; // admin + fichier de validation Google exclus
   $pages = [];
   foreach (glob($root . '/*.html') as $file) {
     $name = basename($file);
@@ -402,7 +402,7 @@ function ams_seo_scan() {
    ============================================================ */
 function ams_geo_scan() {
   $root = dirname(__DIR__);
-  $exclude = ['gestion-realisations-9e0ac25fbcfa23f2.html'];
+  $exclude = ['gestion-realisations-9e0ac25fbcfa23f2.html', 'googlec26e0994be0d9c9e.html'];
   $pages = [];
   foreach (glob($root . '/*.html') as $file) {
     $name = basename($file);
